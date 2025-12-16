@@ -33,50 +33,7 @@ The app includes an AI-powered faith-based counseling chatbot, mood tracking wit
 ## i) Data Model
 ### Firestore Collection–Document Model
 
-The proposed Qalby2Heart application will use **Firebase Cloud Firestore** to store user data and application content. The data model is designed to support the core features of the app, including AI Chat, Mood Tracking, Resources, and Journal.
 
-```text
-users (collection)
- └── userId (document)
-     ├── name: string
-     ├── email: string
-     ├── role: string (user / counsellor)
-     ├── createdAt: timestamp
-
-
-ai_chats (collection)
- └── chatId (document)
-     ├── userId: reference (users)
-     ├── messages: array
-     │    ├── sender: string (user / ai)
-     │    ├── text: string
-     │    └── timestamp: timestamp
-
-
-mood_logs (collection)
- └── moodId (document)
-     ├── userId: reference (users)
-     ├── mood: string
-     ├── note: string
-     └── createdAt: timestamp
-
-
-resources (collection)
- └── resourceId (document)
-     ├── title: string
-     ├── category: string
-     ├── contentType: string (article / video / audio)
-     ├── url: string
-     └── createdAt: timestamp
-
-
-journals (collection)
- └── journalId (document)
-     ├── userId: reference (users)
-     ├── title: string
-     ├── content: string
-     └── createdAt: timestamp
-```
 ## j) Flowchart / Sequence Diagram
 
 
