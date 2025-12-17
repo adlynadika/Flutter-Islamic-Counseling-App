@@ -23,11 +23,11 @@ The app targets Muslims of all ages who seek faith-based mental wellness support
 The app includes an AI-powered faith-based counseling chatbot, mood tracking with Islamic reflections, prayer and dhikr reminders, an organized Islamic resources library (Quranic verses and Hadith by theme), and a private digital journal. Core interactions involve chatting with the AI counselor, logging moods, receiving personalized reminders, browsing saved resources, and writing reflections. The UI features a calming dashboard, chatbot interface, mood tracker charts, resource cards, reminder notifications, and secure journal entries, all supported by Firebase for data persistence and personalization.
 
 ## g) Proposed UI Mock-up
-![homepage](<img width="1080" height="1350" alt="1" src="https://github.com/user-attachments/assets/511a25f4-42c2-414d-b5fe-8a5d990858a8" />
-![AI chat](<img width="1080" height="1350" alt="2" src="https://github.com/user-attachments/assets/3bcd25e7-faed-437d-8391-46035ca7b4f8" />
-![mood page](<img width="1080" height="1350" alt="3" src="https://github.com/user-attachments/assets/61c5206d-ee6c-4f0e-b77d-6e3c0d3f69cd" />
-![resources page](<img width="1080" height="1350" alt="4" src="https://github.com/user-attachments/assets/3c17295f-59d4-4303-9d04-58ce73ead0e5" />
-![journal page](<img width="1080" height="1350" alt="5" src="https://github.com/user-attachments/assets/d7de4315-63bf-4b1e-b828-7c3040647514" />
+<img width="500" height="625" alt="homepage" src="https://github.com/user-attachments/assets/511a25f4-42c2-414d-b5fe-8a5d990858a8" />
+<img width="500" height="625" alt="AI chat" src="https://github.com/user-attachments/assets/3bcd25e7-faed-437d-8391-46035ca7b4f8" />
+<img width="500" height="625" alt="mood" src="https://github.com/user-attachments/assets/61c5206d-ee6c-4f0e-b77d-6e3c0d3f69cd" />
+<img width="500" height="625" alt="resources" src="https://github.com/user-attachments/assets/3c17295f-59d4-4303-9d04-58ce73ead0e5" />
+<img width="500" height="625" alt="journal" src="https://github.com/user-attachments/assets/d7de4315-63bf-4b1e-b828-7c3040647514" />
 
 
 ## h) Architecture / Technical Design
