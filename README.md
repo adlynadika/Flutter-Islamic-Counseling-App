@@ -40,4 +40,7 @@ The app includes an AI-powered faith-based counseling chatbot, mood tracking wit
 ![flowchart](flowchart.png)
 
 ## k) References
-1. Ismail, N., Hassan, S. A., & Amin, A. S. (2019). Islamic counseling: An approach to mental health and emotional well-being. IIUM Journal of Educational Studies. https://journals.iium.edu.my/ijes/index.php/iejs/article/view/399/163
+1. Awaad, R., Ali, S., & Al-Zaid, K. (2020). Mental health care of Muslims. In S. K. Al-Zaid (Ed.), The Wiley handbook of healthcare of Muslim patients (pp. 341–356). Wiley.
+2. Draganović, S., Hasanović, M., Oruč, B., & Pervan, A. (2025). Islamic psychological therapy interventions applied by mental health practitioners: A qualitative study. Spiritual Psychology and Counseling, 10(1), 47–67. https://doi.org/10.37898/spiritualpc.1340227
+3. Haramain, M., & Afiah, N. (2025). Bridging faith and therapy: A systematic review of Islamic psychotherapy in mental health and rehabilitation. Indonesian Journal of Islamic Counseling, 6(2), 133–150. https://doi.org/10.35905/ijic.v6i2.10727
+4. Ismail, N., Hassan, S. A., & Amin, A. S. (2019). Islamic counseling: An approach to mental health and emotional well-being. IIUM Journal of Educational Studies. https://journals.iium.edu.my/ijes/index.php/iejs/article/view/399/163
