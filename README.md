@@ -37,7 +37,7 @@ The app includes an AI-powered faith-based counseling chatbot, mood tracking wit
 
 
 ## h) Architecture / Technical Design
-![Uploading ArchitectureDesignQalby2Heart.png…]()
+[![Uploading ArchitectureDesignQalby2Heart.png…]()](https://github.com/jannahnaimah/Flutter-Islamic-Counseling-App/blob/main/ArchitectureDesignQalby2Heart.png)
 
 ## i) Data Model
 ![data model](datamodel.png)
