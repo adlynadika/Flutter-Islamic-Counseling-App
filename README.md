@@ -14,7 +14,13 @@ Many people experience emotional stress, anxiety, and personal challenges, but e
 To address this need, we propose **Qalby2Heart**, an Islamic counseling mobile application that will provide a safe, Shariah-compliant, and culturally sensitive platform. The app will include a _Home_ page for easy navigation, _AI Chat_ for instant guidance, _Mood Tracker_ to monitor emotions, _Resources_ for educational and spiritual content, and a _Journal_ for personal reflection. By integrating Islamic principles such as **ihsan (excellence)** and **sakinah (tranquility)**, Qalby2Heart aims to offer a meaningful alternative to conventional counseling apps, helping users manage emotional challenges while staying connected to their faith (Ismail et al., 2019).
 
 ## d) Objectives
+1. To develop a Shariah-compliant mobile counseling application that integrates emotional support with Islamic values and principles.
 
+2. To provide a safe, private, and accessible platform where users can seek guidance, track emotions, and reflect on their mental well-being.
+
+3. To design AI-powered counseling and mood-tracking features that encourage self-awareness, healthy coping, and faith-based emotional support.
+
+4. To offer curated Islamic resources and reminders that promote spiritual growth, mindfulness, and continuous connection with Allah in daily life.
 
 ## e) Target Users
 The app targets Muslims of all ages who seek faith-based mental wellness support in a private and accessible way. This includes students, working adults, and individuals experiencing stress, anxiety, emotional distress, or those simply seeking spiritual growth, self-reflection, and emotional balance guided by Islamic values.
