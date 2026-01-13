@@ -11,17 +11,36 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e, st) {
+    // If Firebase isn't configured for this platform (e.g. Windows),
+    // prevent a hard crash and log the error for diagnosis.
+    debugPrint('Firebase initialization error: $e\n$st');
+  }
   runApp(const Qalby2HeartApp());
 }
 
 class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
+  /// When true (test-only) forces the offline fallback instead of checking
+  /// `Firebase.apps`.
+  final bool forceOffline;
+
+  const AuthGate({super.key, this.forceOffline = false});
 
   @override
   Widget build(BuildContext context) {
+    // If Firebase isn't initialized (for example on unsupported platforms),
+    // avoid calling FirebaseAuth and show a simple offline/fallback UI instead
+    // of letting an exception crash the app.
+    if (forceOffline || Firebase.apps.isEmpty) {
+      // When Firebase isn't configured, show the main UI in offline mode
+      // so the app doesn't exit and tests can run without Firebase.
+      return MainScreen(offline: true);
+    }
+
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
@@ -58,7 +77,10 @@ class Qalby2HeartApp extends StatelessWidget {
 }
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  /// Indicates the app is running without Firebase configured.
+  final bool offline;
+
+  const MainScreen({super.key, this.offline = false});
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -80,6 +102,24 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Qalby2Heart'),
+        // Show a small banner under the AppBar when running in offline mode
+        bottom: widget.offline
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(28.0),
+                child: SizedBox(
+                  height: 28.0,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(color: Colors.amber),
+                    child: Center(
+                      child: Text(
+                        'Offline: Firebase not configured',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),

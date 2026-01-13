@@ -94,7 +94,8 @@ class _MoodScreenState extends State<MoodScreen> {
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 3,
                       crossAxisSpacing: 12,
                       mainAxisSpacing: 12,
@@ -129,9 +130,8 @@ class _MoodScreenState extends State<MoodScreen> {
                             children: [
                               Icon(
                                 mood['icon'],
-                                color: isSelected
-                                    ? Colors.white
-                                    : mood['color'],
+                                color:
+                                    isSelected ? Colors.white : mood['color'],
                                 size: 32,
                               ),
                               const SizedBox(height: 8),
@@ -174,12 +174,12 @@ class _MoodScreenState extends State<MoodScreen> {
                       });
                     },
                   ),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text('Mild'),
-                      const Text('Moderate'),
-                      const Text('Strong'),
+                      Text('Mild'),
+                      Text('Moderate'),
+                      Text('Strong'),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -205,7 +205,8 @@ class _MoodScreenState extends State<MoodScreen> {
                   TextField(
                     maxLines: 4,
                     decoration: InputDecoration(
-                      hintText: 'What\'s on your mind? This is private and confidential...',
+                      hintText:
+                          'What\'s on your mind? This is private and confidential...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -266,4 +267,3 @@ class _MoodScreenState extends State<MoodScreen> {
     );
   }
 }
-

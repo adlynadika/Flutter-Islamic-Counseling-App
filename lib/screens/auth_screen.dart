@@ -111,6 +111,8 @@ class _AuthScreenState extends State<AuthScreen> {
       final idToken = googleUser.authentication.idToken;
       GoogleSignInClientAuthorization? authz;
       try {
+        // Try lightweight token retrieval first (no UI). If null, fall back to
+        // an explicit scope authorization request which may show UI.
         authz = await googleUser.authorizationClient.authorizationForScopes(
           const ['openid', 'email', 'profile'],
         );

@@ -200,7 +200,8 @@ class ResourcesScreen extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Color(0xFF2E7D32).withAlpha((0.1 * 255).round()),
+                        color: const Color(0xFF2E7D32)
+                            .withAlpha((0.1 * 255).round()),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

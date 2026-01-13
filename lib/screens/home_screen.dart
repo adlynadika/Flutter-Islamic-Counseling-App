@@ -87,18 +87,18 @@ class HomeScreen extends StatelessWidget {
                       ),
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Column(
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(
+                            Icon(
                               Icons.nightlight_round,
                               color: Colors.white,
                               size: 32,
                             ),
-                            const SizedBox(width: 12),
-                            const Expanded(
+                            SizedBox(width: 12),
+                            Expanded(
                               child: Text(
                                 '"Verily, in the remembrance of Allah do hearts find rest."',
                                 style: TextStyle(
@@ -110,8 +110,8 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        const Text(
+                        SizedBox(height: 12),
+                        Text(
                           '— Quran 13:28',
                           style: TextStyle(
                             color: Colors.white70,
@@ -274,4 +274,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-
