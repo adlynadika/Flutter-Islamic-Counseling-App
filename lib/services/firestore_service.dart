@@ -82,8 +82,7 @@ class FirestoreService {
       return [];
     }
 
-    final start = DateTime.utc(date.year, date.month, date.day);
-    final end = start.add(const Duration(days: 1));
+    final dateString = date.toUtc().toIso8601String().substring(0, 10);
 
     final url = Uri.parse(
         'https://firestore.googleapis.com/v1/projects/$_projectId/databases/(default)/documents:runQuery');
@@ -106,16 +105,9 @@ class FirestoreService {
               },
               {
                 'fieldFilter': {
-                  'field': {'fieldPath': 'timestamp'},
-                  'op': 'GREATER_THAN_OR_EQUAL',
-                  'value': {'timestampValue': start.toUtc().toIso8601String()}
-                }
-              },
-              {
-                'fieldFilter': {
-                  'field': {'fieldPath': 'timestamp'},
-                  'op': 'LESS_THAN',
-                  'value': {'timestampValue': end.toUtc().toIso8601String()}
+                  'field': {'fieldPath': 'date'},
+                  'op': 'EQUAL',
+                  'value': {'stringValue': dateString}
                 }
               }
             ]

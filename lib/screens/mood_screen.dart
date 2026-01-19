@@ -73,13 +73,15 @@ class _MoodScreenState extends State<MoodScreen> {
     // second step context fields are optional but helpful
     final messenger = ScaffoldMessenger.of(context);
     final user = FirebaseAuth.instance.currentUser;
+    final now = DateTime.now().toUtc();
     final payload = {
       'mood': _selectedMood,
       'intensity': _intensity.toInt(),
       'trigger': _selectedTrigger ?? 'Not provided',
       'location': _selectedLocation ?? 'Not provided',
       'note': _noteController.text.trim(),
-      'timestamp': DateTime.now().toUtc(),
+      'timestamp': now,
+      'date': now.toIso8601String().substring(0, 10), // YYYY-MM-DD
       'uid': user?.uid,
     };
     try {
