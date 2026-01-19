@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,6 +24,8 @@ class _JournalScreenState extends State<JournalScreen> {
   String? _attachedImagePath;
   String _searchQuery = '';
   String _historyCategoryFilter = 'All';
+  String? _aiRecommendation;
+  bool _isLoadingRecommendation = false;
 
   @override
   void dispose() {
@@ -30,15 +34,20 @@ class _JournalScreenState extends State<JournalScreen> {
     super.dispose();
   }
 
+  // Override build to return the widget tree for the screen
   @override
   Widget build(BuildContext context) {
+    // Return a Scaffold with body as a column
     return Scaffold(
       body: Column(
         children: [
-          // Header
+          // Header section
           Container(
+            // Full width
             width: double.infinity,
+            // Padding for the header
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            // Decoration with green background and rounded bottom corners
             decoration: const BoxDecoration(
               color: Color(0xFF2E7D32),
               borderRadius: BorderRadius.only(
@@ -46,8 +55,10 @@ class _JournalScreenState extends State<JournalScreen> {
                 bottomRight: Radius.circular(20),
               ),
             ),
+            // Child is a column with app title and subtitle
             child: const Column(
               children: [
+                // App title text
                 Text(
                   'Qalby2Heart',
                   style: TextStyle(
@@ -56,7 +67,9 @@ class _JournalScreenState extends State<JournalScreen> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                // Spacing
                 SizedBox(height: 4),
+                // Subtitle text
                 Text(
                   'Your Faith-Based Mental Wellness Companion',
                   style: TextStyle(
@@ -67,19 +80,25 @@ class _JournalScreenState extends State<JournalScreen> {
               ],
             ),
           ),
-          // Journal Header
+          // Journal Header section
           Container(
+            // Padding around the header
             padding: const EdgeInsets.all(16),
+            // Child is a column with title, buttons, and privacy notice
             child: Column(
               children: [
+                // Row with lock icon, title, and mode buttons
                 Row(
                   children: [
+                    // Lock icon
                     Icon(
                       Icons.lock,
                       color: Colors.purple[700],
                       size: 24,
                     ),
+                    // Spacing
                     const SizedBox(width: 8),
+                    // Journal title text
                     const Text(
                       'Private Journal',
                       style: TextStyle(
@@ -88,7 +107,9 @@ class _JournalScreenState extends State<JournalScreen> {
                         color: Colors.black87,
                       ),
                     ),
+                    // Spacer to push buttons to the right
                     const Spacer(),
+                    // Write mode button
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
@@ -111,7 +132,9 @@ class _JournalScreenState extends State<JournalScreen> {
                       ),
                       child: const Text('Write'),
                     ),
+                    // Spacing
                     const SizedBox(width: 8),
+                    // History mode button
                     ElevatedButton(
                       onPressed: () {
                         setState(() {
@@ -136,15 +159,20 @@ class _JournalScreenState extends State<JournalScreen> {
                     ),
                   ],
                 ),
+                // Spacing
                 const SizedBox(height: 8),
+                // Privacy notice row
                 Row(
                   children: [
+                    // Lock icon
                     Icon(
                       Icons.lock,
                       color: Colors.orange[700],
                       size: 16,
                     ),
+                    // Spacing
                     const SizedBox(width: 4),
+                    // Privacy text
                     Text(
                       'Your entries are private and confidential',
                       style: TextStyle(
@@ -157,9 +185,19 @@ class _JournalScreenState extends State<JournalScreen> {
               ],
             ),
           ),
-          // Main Content
+          // Main Content section
           Expanded(
-            child: _isWriteMode ? _buildWriteView() : _buildHistoryView(),
+            // Conditional child based on write mode
+            child: _isWriteMode
+                ? Column(
+                    children: [
+                      // Expanded write view
+                      Expanded(child: _buildWriteView()),
+                      // AI recommendation section
+                      _buildAIRecommendation(),
+                    ],
+                  )
+                : _buildHistoryView(),
           ),
         ],
       ),
@@ -315,6 +353,14 @@ class _JournalScreenState extends State<JournalScreen> {
             child: ElevatedButton(
               onPressed: () async {
                 if (_contentController.text.isNotEmpty) {
+                  // Show loading for AI recommendation
+                  setState(() {
+                    _isLoadingRecommendation = true;
+                  });
+
+                  final suggestedVerse =
+                      await _suggestVerse(_contentController.text, _category);
+
                   final entry = {
                     'title': _titleController.text.isEmpty
                         ? 'Untitled Entry'
@@ -323,11 +369,12 @@ class _JournalScreenState extends State<JournalScreen> {
                     'date': DateTime.now(),
                     'category': _category,
                     'imagePath': _attachedImagePath,
-                    'suggestedVerse':
-                        _suggestVerse(_contentController.text, _category),
+                    'suggestedVerse': suggestedVerse,
                   };
                   setState(() {
                     _entries.add(entry);
+                    _aiRecommendation = suggestedVerse;
+                    _isLoadingRecommendation = false;
                     _titleController.clear();
                     _contentController.clear();
                     _attachedImagePath = null;
@@ -434,6 +481,107 @@ class _JournalScreenState extends State<JournalScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildAIRecommendation() {
+    if (_isLoadingRecommendation) {
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color.fromRGBO(158, 158, 158, 0.2),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Column(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(height: 12),
+            Text(
+              'Getting AI Quranic recommendation...',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (_aiRecommendation != null) {
+      return Container(
+        margin: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Color.fromRGBO(158, 158, 158, 0.2),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Row(
+              children: [
+                Icon(
+                  Icons.lightbulb_outline,
+                  color: Color(0xFF00897B),
+                ),
+                SizedBox(width: 8),
+                Text(
+                  'AI Quranic Recommendation',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF00897B),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _aiRecommendation!,
+              style: const TextStyle(
+                fontSize: 14,
+                height: 1.5,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    _aiRecommendation = null;
+                  });
+                },
+                child: const Text(
+                  'Dismiss',
+                  style: TextStyle(color: Color(0xFF00897B)),
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
   }
 
   Widget _buildHistoryView() {
@@ -687,7 +835,61 @@ class _JournalScreenState extends State<JournalScreen> {
     }
   }
 
-  String _suggestVerse(String content, String category) {
+  Future<String> _suggestVerse(String content, String category) async {
+    try {
+      // Use AI to generate verse recommendation based on content and category
+      final prompt = '''
+Based on this journal entry content: "$content"
+And category: "$category"
+
+Recommend a suitable Quranic verse that would provide comfort, guidance, or reflection for this journal entry.
+
+Please respond with:
+1. The Quranic verse (include Surah name and verse number)
+2. A brief explanation of why this verse is suitable for this journal entry
+3. How it can help the person
+
+Keep the response concise and compassionate.
+''';
+
+      final messages = [
+        {
+          'role': 'system',
+          'content':
+              'You are an Islamic counselor providing Quranic verse recommendations based on journal entries. Always provide authentic Quranic verses with proper references and meaningful explanations.'
+        },
+        {'role': 'user', 'content': prompt}
+      ];
+
+      final response = await http.post(
+        Uri.parse('https://openrouter.ai/api/v1/chat/completions'),
+        headers: {
+          'Authorization':
+              'Bearer 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',
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'model': 'deepseek/deepseek-chat',
+          'messages': messages,
+          'max_tokens': 200,
+          'temperature': 0.7,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data['choices'][0]['message']['content'];
+      } else {
+        // Fallback to simple suggestions if AI fails
+        return _getFallbackVerse(content, category);
+      }
+    } catch (e) {
+      // Fallback to simple suggestions
+      return _getFallbackVerse(content, category);
+    }
+  }
+
+  String _getFallbackVerse(String content, String category) {
     final lc = content.toLowerCase();
     if (lc.contains('grateful') || category == 'Gratitude') {
       return '"If you are grateful, I will surely increase you [in favor]." (Quran 14:7)';
