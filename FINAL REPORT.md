@@ -31,8 +31,9 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
 ### Technology Stack
 - **Framework**: Flutter (Dart)
 - **Backend**: Firebase (Authentication, Firestore)
+- **AI Integration**: OpenRouter API with DeepSeek model for conversational AI
 - **State Management**: Stateful widgets with setState
-- **Networking**: HTTP package for direct Firestore REST API calls
+- **Networking**: HTTP package for direct Firestore REST API calls and AI service
 - **Authentication**: Firebase Auth with platform-specific providers
 
 ### Architecture
@@ -56,14 +57,14 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
 
 ### Current Limitations
 - **Web Configuration**: Firebase web options are placeholders and need manual configuration from Firebase Console
-- **AI Chat**: Currently a static UI placeholder without actual AI integration
+- **AI Chat**: Interactive AI counseling using OpenRouter API with DeepSeek model, providing empathetic responses and Quranic verse recommendations based on user mood and context
 - **Offline Sync**: No local storage or sync when offline (beyond basic offline mode)
 - **Data Validation**: Limited input validation and sanitization
 - **Performance**: No caching or optimization for large datasets
 - **Security**: Basic Firestore rules; may need refinement for production
 
 ### Future Enhancements
-- **AI Integration**: Implement actual AI counseling using OpenAI or similar APIs
+- **AI Improvements**: Enhance AI responses with more Islamic counseling techniques and personalized recommendations
 - **Push Notifications**: Reminders for mood tracking and journaling
 - **Data Analytics**: User insights and progress tracking
 - **Social Features**: Community support groups or sharing (with privacy controls)
@@ -83,7 +84,7 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
 
 ---
 
-**Project Status**: Core functionality complete and deployed to GitHub  
+**Project Status**: Core functionality complete with recent AI integration updates deployed to GitHub  
 **Repository**: https://github.com/jannahnaimah/Flutter-Islamic-Counseling-App.git  
-**Date**: January 19, 2026</content>
+**Date**: January 20, 2026</content>
 <parameter name="filePath">C:\Users\njnna\AndroidStudioProjects\Qalby2Heart\REPORT.md
