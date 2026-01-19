@@ -38,7 +38,7 @@ class AuthGate extends StatelessWidget {
     if (forceOffline || Firebase.apps.isEmpty) {
       // When Firebase isn't configured, show the main UI in offline mode
       // so the app doesn't exit and tests can run without Firebase.
-      return MainScreen(offline: true);
+      return const MainScreen(offline: true);
     }
 
     return StreamBuilder<User?>(

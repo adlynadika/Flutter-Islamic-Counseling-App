@@ -1,4 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import '../services/firestore_service.dart';
 
 class JournalScreen extends StatefulWidget {
   const JournalScreen({super.key});
@@ -12,6 +17,11 @@ class _JournalScreenState extends State<JournalScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final List<Map<String, dynamic>> _entries = [];
+
+  String _category = 'Free Writing';
+  String? _attachedImagePath;
+  String _searchQuery = '';
+  String _historyCategoryFilter = 'All';
 
   @override
   void dispose() {
@@ -198,11 +208,73 @@ class _JournalScreenState extends State<JournalScreen> {
               contentPadding: const EdgeInsets.all(16),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
+          // Category selector
+          Row(
+            children: [
+              const Text('Category: ',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(width: 8),
+              DropdownButton<String>(
+                value: _category,
+                items: [
+                  'Gratitude',
+                  'Challenges',
+                  'Prayer',
+                  'Du\'a',
+                  'Free Writing'
+                ]
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (v) {
+                  if (v == null) return;
+                  setState(() {
+                    _category = v;
+                  });
+                },
+              ),
+              const Spacer(),
+              // Image attach
+              IconButton(
+                onPressed: _pickImage,
+                icon: const Icon(Icons.photo_library),
+                tooltip: 'Attach image (optional)',
+              ),
+            ],
+          ),
+          if (_attachedImagePath != null) ...[
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 120,
+              child: Image.file(
+                File(_attachedImagePath!),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ],
+          const SizedBox(height: 12),
+          // Formatting toolbar
+          Row(
+            children: [
+              IconButton(
+                  onPressed: () => _wrapSelection('**', '**'),
+                  icon: const Icon(Icons.format_bold)),
+              IconButton(
+                  onPressed: () => _wrapSelection('*', '*'),
+                  icon: const Icon(Icons.format_italic)),
+              IconButton(
+                  onPressed: () => _wrapSelection('__', '__'),
+                  icon: const Icon(Icons.format_underlined)),
+              const SizedBox(width: 8),
+              const Text('Formatting tools (inserts markdown markers)',
+                  style: TextStyle(fontSize: 12, color: Colors.grey)),
+            ],
+          ),
+          const SizedBox(height: 8),
           // Content Input
           TextField(
             controller: _contentController,
-            maxLines: 10,
+            maxLines: 12,
             decoration: InputDecoration(
               hintText:
                   'Pour your heart out... This is a safe space between you and Allah.',
@@ -212,10 +284,10 @@ class _JournalScreenState extends State<JournalScreen> {
               contentPadding: const EdgeInsets.all(16),
             ),
           ),
-          const SizedBox(height: 24),
-          // Inspiration Prompts
+          const SizedBox(height: 16),
+          // Inspiration Prompts (faith-based)
           const Text(
-            'Need inspiration? Try these prompts:',
+            'Guided prompts:',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -227,37 +299,80 @@ class _JournalScreenState extends State<JournalScreen> {
             spacing: 8,
             runSpacing: 8,
             children: [
-              _buildPromptButton('What am I grateful for today?'),
-              _buildPromptButton('What challenges am I facing?'),
-              _buildPromptButton('How did I grow spiritually today?'),
-              _buildPromptButton('What dua do I need answered?'),
-              _buildPromptButton('What lessons did I learn?'),
+              _buildPromptButton('What blessing am I grateful for today?'),
+              _buildPromptButton(
+                  'Which challenge can I bring to Allah in dua?'),
+              _buildPromptButton('How did I feel close to Allah today?'),
+              _buildPromptButton(
+                  'Who needs my prayers and what should I ask for?'),
+              _buildPromptButton('What verse comforts me today?'),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           // Save Entry Button
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 if (_contentController.text.isNotEmpty) {
+                  final entry = {
+                    'title': _titleController.text.isEmpty
+                        ? 'Untitled Entry'
+                        : _titleController.text,
+                    'content': _contentController.text,
+                    'date': DateTime.now(),
+                    'category': _category,
+                    'imagePath': _attachedImagePath,
+                    'suggestedVerse':
+                        _suggestVerse(_contentController.text, _category),
+                  };
                   setState(() {
-                    _entries.add({
-                      'title': _titleController.text.isEmpty
-                          ? 'Untitled Entry'
-                          : _titleController.text,
-                      'content': _contentController.text,
-                      'date': DateTime.now(),
-                    });
+                    _entries.add(entry);
                     _titleController.clear();
                     _contentController.clear();
+                    _attachedImagePath = null;
                   });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Entry saved successfully'),
-                      backgroundColor: Colors.green,
-                    ),
-                  );
+
+                  // Try saving to Firestore (via REST service)
+                  final messenger = ScaffoldMessenger.of(context);
+                  try {
+                    final user = FirebaseAuth.instance.currentUser;
+                    final ok = await FirestoreService()
+                        .addDocument('journal_entries', {
+                      'title': entry['title'],
+                      'content': entry['content'],
+                      'category': entry['category'],
+                      'imagePath': entry['imagePath']?.toString(),
+                      'suggestedVerse': entry['suggestedVerse'],
+                      'timestamp': DateTime.now().toUtc(),
+                      'uid': user?.uid,
+                    });
+                    if (!mounted) return;
+                    if (ok) {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content: Text('Entry saved successfully'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    } else {
+                      messenger.showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Saved locally, could not save remotely'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (!mounted) return;
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Saved locally, could not save remotely'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
                 }
               },
               style: ElevatedButton.styleFrom(
@@ -380,61 +495,215 @@ class _JournalScreenState extends State<JournalScreen> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: _entries.length,
-      itemBuilder: (context, index) {
-        final entry = _entries[_entries.length - 1 - index]; // Reverse order
-        return Container(
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey[200]!),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withAlpha((0.1 * 255).round()),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final filtered = _entries.where((e) {
+      final q = _searchQuery.toLowerCase();
+      final matchesQuery = q.isEmpty ||
+          ((e['title'] ?? '').toLowerCase().contains(q) ||
+              (e['content'] ?? '').toLowerCase().contains(q));
+      final matchesCategory = _historyCategoryFilter == 'All' ||
+          (e['category'] ?? 'Free Writing') == _historyCategoryFilter;
+      return matchesQuery && matchesCategory;
+    }).toList();
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
             children: [
-              Text(
-                entry['title'],
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              Expanded(
+                child: TextField(
+                  decoration: const InputDecoration(
+                    hintText: 'Search entries...',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (v) => setState(() {
+                    _searchQuery = v;
+                  }),
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                entry['content'],
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                _formatDate(entry['date']),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+              const SizedBox(width: 8),
+              DropdownButton<String>(
+                value: _historyCategoryFilter,
+                items: [
+                  'All',
+                  'Gratitude',
+                  'Challenges',
+                  'Prayer',
+                  'Du\'a',
+                  'Free Writing'
+                ]
+                    .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                    .toList(),
+                onChanged: (v) => setState(() {
+                  if (v != null) _historyCategoryFilter = v;
+                }),
               ),
             ],
           ),
-        );
-      },
+        ),
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: filtered.length,
+            itemBuilder: (context, index) {
+              final entry = filtered[filtered.length - 1 - index]; // reverse
+              return GestureDetector(
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      title: Text(entry['title'] ?? 'Untitled'),
+                      content: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(entry['content'] ?? ''),
+                            const SizedBox(height: 12),
+                            if ((entry['imagePath'] ?? '') != '') ...[
+                              if (entry['imagePath'] != null)
+                                Image.file(File(entry['imagePath'])),
+                              const SizedBox(height: 8),
+                            ],
+                            if (entry['suggestedVerse'] != null) ...[
+                              const Divider(),
+                              Text(entry['suggestedVerse'],
+                                  style: const TextStyle(
+                                      fontStyle: FontStyle.italic)),
+                            ],
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            child: const Text('Close'))
+                      ],
+                    ),
+                  );
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[200]!),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withAlpha((0.1 * 255).round()),
+                        spreadRadius: 1,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              entry['title'],
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ),
+                          Text(entry['category'] ?? 'Free Writing',
+                              style: TextStyle(
+                                  color: Colors.grey[600], fontSize: 12)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        entry['content'],
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black87,
+                        ),
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _formatDate(entry['date']),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
     );
+  }
+
+  void _wrapSelection(String left, String right) {
+    final sel = _contentController.selection;
+    final fullText = _contentController.text;
+    if (!sel.isValid || sel.isCollapsed) {
+      // Insert markers at cursor
+      final pos = sel.start >= 0 ? sel.start : fullText.length;
+      final newText = fullText.replaceRange(pos, pos, '$left$right');
+      _contentController.text = newText;
+      _contentController.selection =
+          TextSelection.collapsed(offset: pos + left.length);
+    } else {
+      final newText = fullText.replaceRange(sel.start, sel.end,
+          '$left${fullText.substring(sel.start, sel.end)}$right');
+      _contentController.text = newText;
+      _contentController.selection = TextSelection(
+          baseOffset: sel.start,
+          extentOffset:
+              sel.start + left.length + (sel.end - sel.start) + right.length);
+    }
+  }
+
+  Future<void> _pickImage() async {
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? file = await picker.pickImage(
+          source: ImageSource.gallery,
+          maxWidth: 1200,
+          maxHeight: 1200,
+          imageQuality: 80);
+      if (file != null) {
+        setState(() {
+          _attachedImagePath = file.path;
+        });
+      }
+    } catch (e) {
+      // ignoring errors for now
+    }
+  }
+
+  String _suggestVerse(String content, String category) {
+    final lc = content.toLowerCase();
+    if (lc.contains('grateful') || category == 'Gratitude') {
+      return '"If you are grateful, I will surely increase you [in favor]." (Quran 14:7)';
+    }
+    if (lc.contains('fear') || lc.contains('anxious') || category == 'Prayer') {
+      return '"And when My servants ask you concerning Me, indeed I am near..." (Quran 2:186)';
+    }
+    if (lc.contains('patience') ||
+        lc.contains('trial') ||
+        category == 'Challenges') {
+      return '"So be patient. Indeed, the promise of Allah is truth." (Quran 30:60)';
+    }
+    if (lc.contains('forgive') || lc.contains('forgiveness')) {
+      return '"And seek forgiveness of your Lord. Indeed, He is Forgiving." (Quran 11:3)';
+    }
+    return '"Indeed, with hardship comes ease." (Quran 94:6)';
   }
 
   Widget _buildPromptButton(String prompt) {

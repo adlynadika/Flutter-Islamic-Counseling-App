@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:flutter/foundation.dart';
+import '../services/firestore_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -45,11 +47,14 @@ class _AuthScreenState extends State<AuthScreen> {
         default:
           return e.message ?? 'Authentication error: ${e.code}';
       }
+    } else if (e is FirebaseException) {
+      return e.message ?? 'Firebase error: ${e.code}';
     }
     return e.toString();
   }
 
   Future<void> _showError(Object e) async {
+    if (!mounted) return;
     final msg = _getErrorMessage(e);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
@@ -73,7 +78,9 @@ class _AuthScreenState extends State<AuthScreen> {
     } catch (e) {
       await _showError(e);
     } finally {
-      setState(() => _isSigningIn = false);
+      if (mounted) {
+        setState(() => _isSigningIn = false);
+      }
     }
   }
 
@@ -87,63 +94,90 @@ class _AuthScreenState extends State<AuthScreen> {
 
     try {
       setState(() => _isSigningIn = true);
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      final userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
+
+      // Save user profile to Firestore
+      await FirestoreService()
+          .setDocument('user_profiles', userCredential.user!.uid, {
+        'email': _emailController.text.trim(),
+        'uid': userCredential.user?.uid,
+        'createdAt': DateTime.now().toUtc(),
+        'authProvider': 'email',
+      });
     } on FirebaseAuthException catch (e) {
       await _showError(e);
     } catch (e) {
       await _showError(e);
     } finally {
-      setState(() => _isSigningIn = false);
+      if (mounted) {
+        setState(() => _isSigningIn = false);
+      }
     }
   }
 
   Future<void> _signInWithGoogle() async {
     setState(() => _isSigningIn = true);
     try {
-      // Use the package's singleton API and the new `authenticate` method.
-      final googleUser = await GoogleSignIn.instance.authenticate();
+      UserCredential userCredential;
+      if (kIsWeb) {
+        // For web, use Firebase Auth's signInWithPopup
+        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        googleProvider.addScope('email');
+        googleProvider.addScope('profile');
+        userCredential =
+            await FirebaseAuth.instance.signInWithPopup(googleProvider);
+      } else {
+        // For mobile, use GoogleSignIn
+        final googleUser = await GoogleSignIn.instance.authenticate();
 
-      // GoogleSignInAuthentication only contains an ID token. Request an
-      // authorization token (access token) using the authorization client.
-      final idToken = googleUser.authentication.idToken;
-      GoogleSignInClientAuthorization? authz;
-      try {
-        // Try lightweight token retrieval first (no UI). If null, fall back to
-        // an explicit scope authorization request which may show UI.
-        authz = await googleUser.authorizationClient.authorizationForScopes(
-          const ['openid', 'email', 'profile'],
+        // GoogleSignInAuthentication only contains an ID token. Request an
+        // authorization token (access token) using the authorization client.
+        final idToken = googleUser.authentication.idToken;
+        GoogleSignInClientAuthorization? authz;
+        try {
+          // Try lightweight token retrieval first (no UI). If null, fall back to
+          // an explicit scope authorization request which may show UI.
+          authz = await googleUser.authorizationClient.authorizationForScopes(
+            const ['openid', 'email', 'profile'],
+          );
+          authz ??= await googleUser.authorizationClient.authorizeScopes(
+            const ['openid', 'email', 'profile'],
+          );
+        } catch (_) {
+          // If authorization fails, we still attempt sign-in with the ID token
+          // which may be sufficient on some platforms.
+        }
+
+        final credential = GoogleAuthProvider.credential(
+          accessToken: authz?.accessToken,
+          idToken: idToken,
         );
-        authz ??= await googleUser.authorizationClient.authorizeScopes(
-          const ['openid', 'email', 'profile'],
-        );
-      } catch (_) {
-        // If authorization fails, we still attempt sign-in with the ID token
-        // which may be sufficient on some platforms.
+
+        userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
       }
 
-      final credential = GoogleAuthProvider.credential(
-        accessToken: authz?.accessToken,
-        idToken: idToken,
-      );
-
-      await FirebaseAuth.instance.signInWithCredential(credential);
-    } on GoogleSignInException catch (e) {
-      // User cancelled or UI unavailable are common; only show errors otherwise.
-      if (e.code == GoogleSignInExceptionCode.canceled ||
-          e.code == GoogleSignInExceptionCode.interrupted ||
-          e.code == GoogleSignInExceptionCode.uiUnavailable) {
-        return;
-      }
-      await _showError(e);
+      // Save user profile to Firestore (for new users or updates)
+      await FirestoreService()
+          .setDocument('user_profiles', userCredential.user!.uid, {
+        'email': userCredential.user?.email,
+        'displayName': userCredential.user?.displayName,
+        'uid': userCredential.user?.uid,
+        'createdAt': DateTime.now().toUtc(),
+        'authProvider': 'google',
+      });
     } on FirebaseAuthException catch (e) {
       await _showError(e);
     } catch (e) {
       await _showError(e);
     } finally {
-      setState(() => _isSigningIn = false);
+      if (mounted) {
+        setState(() => _isSigningIn = false);
+      }
     }
   }
 
