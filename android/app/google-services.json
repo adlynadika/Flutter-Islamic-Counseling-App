@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1072543890012",
+    "project_id": "qalby2heal",
+    "storage_bucket": "qalby2heal.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1072543890012:android:2b73ee98a65f18d7a7c499",
+        "android_client_info": {
+          "package_name": "com.example.qalby2heart"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxA7pYenXUJuy1STYOrXdC6DjYhSQ-CpM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1072543890012:android:0b732b0115a34369a7c499",
+        "android_client_info": {
+          "package_name": "qalby.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxA7pYenXUJuy1STYOrXdC6DjYhSQ-CpM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
