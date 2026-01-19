@@ -18,7 +18,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
   // ⚠️ Store securely (e.g. env/secure storage), don’t hardcode in production
   static const String _apiKey =
-      "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";
+      "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";
 
   @override
   void initState() {
