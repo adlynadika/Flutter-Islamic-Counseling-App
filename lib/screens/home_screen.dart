@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:qalby2heart/main.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -148,7 +149,7 @@ class HomeScreen extends StatelessWidget {
                         title: 'Talk to AI Counselor',
                         description: 'Get faith-based guidance',
                         onTap: () {
-                          // Navigate to AI Chat
+                          MainScreen.switchTab(context, 1); // AI Chat tab
                         },
                       ),
                       _buildQuickAccessCard(
@@ -158,7 +159,7 @@ class HomeScreen extends StatelessWidget {
                         title: 'Track Your Mood',
                         description: 'Monitor your well-being',
                         onTap: () {
-                          // Navigate to Mood
+                          MainScreen.switchTab(context, 2); // Mood tab
                         },
                       ),
                       _buildQuickAccessCard(
@@ -168,7 +169,7 @@ class HomeScreen extends StatelessWidget {
                         title: 'Islamic Resources',
                         description: 'Quran, Hadith & guidance',
                         onTap: () {
-                          // Navigate to Resources
+                          MainScreen.switchTab(context, 3); // Resources tab
                         },
                       ),
                       _buildQuickAccessCard(
@@ -178,7 +179,7 @@ class HomeScreen extends StatelessWidget {
                         title: 'Private Journal',
                         description: 'Express your thoughts',
                         onTap: () {
-                          // Navigate to Journal
+                          MainScreen.switchTab(context, 4); // Journal tab
                         },
                       ),
                     ],
