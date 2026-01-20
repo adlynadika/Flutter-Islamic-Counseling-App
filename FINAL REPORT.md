@@ -26,61 +26,125 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
   - `resource_filters`: Filter preference tracking
 - Secure data access with Firebase Authentication integration
 
+
 ## Technical Explanation
 
 ### Technology Stack
-- **Framework**: Flutter (Dart)
-- **Backend**: Firebase (Authentication, Firestore)
-- **AI Integration**: OpenRouter API with DeepSeek model for conversational AI
-- **State Management**: Stateful widgets with setState
-- **Networking**: HTTP package for direct Firestore REST API calls and AI service
-- **Authentication**: Firebase Auth with platform-specific providers
+
+* **Framework**: Flutter (Dart) for cross-platform mobile and web development
+* **Backend**: Firebase Authentication and Cloud Firestore for secure user management and data storage
+* **AI Integration**: OpenRouter API utilizing the DeepSeek model to provide conversational AI-based counseling
+* **State Management**: Stateful widgets with `setState` for UI updates and state control
+* **Networking**: `http` package for direct REST API calls to Firestore and AI services
+* **Authentication**: Firebase Auth with platform-specific providers (email/password and Google OAuth)
 
 ### Architecture
-- **MVVM-like Structure**: Screens handle UI, services manage data operations
-- **Service Layer**: `FirestoreService` provides CRUD operations via REST API
-- **Platform Detection**: Uses `kIsWeb` for conditional logic (web vs mobile auth)
-- **Error Handling**: Comprehensive exception catching with user-friendly messages
+
+The system follows a **MVVM-like architecture**, where the UI layer is separated from the data layer to ensure modularity and maintainability.
+
+* **UI Layer (Screens)**: Handles user interface, navigation, and presentation logic
+* **Service Layer**: `FirestoreService` is responsible for all data operations, including CRUD functionality
+* **Platform Detection**: Uses `kIsWeb` to manage platform-specific authentication flows and configurations
+* **Error Handling**: Includes comprehensive exception handling with user-friendly messages and feedback
 
 ### Key Technical Decisions
-- **Direct REST API**: Bypassed Firebase SDK for Firestore to maintain control and avoid web compatibility issues
-- **Document IDs**: User profiles use UID as document ID to prevent duplicates
-- **Timestamp Handling**: UTC timestamps for consistent date filtering
-- **Authentication Guards**: StreamBuilder monitors auth state for seamless UI transitions
+
+* **Direct REST API Integration**
+  Firestore SDK was bypassed to maintain full control over network operations and to avoid compatibility issues on web platforms.
+
+* **User Document Identification**
+  User profiles are stored using Firebase UID as the document ID to prevent duplicate profiles and ensure data consistency.
+
+* **Timestamp Standardization**
+  All timestamps are stored in UTC format to ensure consistent date filtering and cross-timezone accuracy.
+
+* **Authentication Guards**
+  `StreamBuilder` is used to monitor authentication state changes and ensure seamless UI transitions between login and home screens.
 
 ### Firebase Integration
-- **Authentication**: Supports email/password and Google OAuth
-- **Firestore Rules**: Configured for authenticated user access
-- **Platform Config**: Separate options for Android and web (web config needs manual update)
+
+* **Authentication**
+  Supports email/password authentication and Google OAuth for secure login and account management.
+
+* **Firestore Security Rules**
+  Configured to allow access only to authenticated users, ensuring data privacy and integrity.
+
+* **Platform Configuration**
+  Android and web platforms are configured separately, with web configuration requiring manual setup through Firebase Console.
+
+---
 
 ## Limitations and Future Enhancements
 
 ### Current Limitations
-- **Web Configuration**: Firebase web options are placeholders and need manual configuration from Firebase Console
-- **AI Chat**: Interactive AI counseling using OpenRouter API with DeepSeek model, providing empathetic responses and Quranic verse recommendations based on user mood and context
-- **Offline Sync**: No local storage or sync when offline (beyond basic offline mode)
-- **Data Validation**: Limited input validation and sanitization
-- **Performance**: No caching or optimization for large datasets
-- **Security**: Basic Firestore rules; may need refinement for production
+
+* **Firebase Web Configuration**
+  Web options are currently placeholders and require manual configuration via Firebase Console.
+
+* **AI Counseling**
+  AI chat provides empathetic responses and Quranic verse recommendations, but requires further refinement for deeper counseling accuracy.
+
+* **Offline Synchronization**
+  The app does not support full offline data synchronization or local caching beyond basic offline mode.
+
+* **Input Validation**
+  Limited validation and sanitization of user inputs may lead to inconsistent or incorrect data entries.
+
+* **Performance**
+  The application does not yet implement caching, pagination, or optimization for large datasets.
+
+* **Security**
+  Firestore rules are basic and require further hardening for production deployment.
 
 ### Future Enhancements
-- **AI Improvements**: Enhance AI responses with more Islamic counseling techniques and personalized recommendations
-- **Push Notifications**: Reminders for mood tracking and journaling
-- **Data Analytics**: User insights and progress tracking
-- **Social Features**: Community support groups or sharing (with privacy controls)
-- **Multilingual Support**: Arabic/English localization
-- **Advanced Search**: Full-text search in journals and resources
-- **Backup/Restore**: User data export/import functionality
-- **Wearable Integration**: Mood tracking via smartwatches
-- **Therapist Integration**: Professional referral system
-- **Progressive Web App**: Enhanced PWA features for web version
+
+* **AI Enhancement**
+  Improve counseling quality by integrating advanced Islamic counseling methodologies and personalized recommendations.
+
+* **Push Notifications**
+  Add reminder notifications for mood tracking, journaling, and counseling follow-ups.
+
+* **Data Analytics**
+  Introduce user insights, progress tracking, and behavioral analytics for self-improvement monitoring.
+
+* **Social Features**
+  Implement community support groups or sharing options with strict privacy controls.
+
+* **Multilingual Support**
+  Provide Arabic and English localization for broader accessibility.
+
+* **Advanced Search**
+  Implement full-text search functionality for journals and resources.
+
+* **Backup & Restore**
+  Add data export/import options to allow users to backup their data securely.
+
+* **Wearable Integration**
+  Integrate mood tracking via wearable devices for real-time monitoring.
+
+* **Therapist Integration**
+  Provide professional referral systems for users requiring advanced support.
+
+* **Progressive Web App (PWA)**
+  Enhance web version with PWA capabilities for improved performance and offline experience.
 
 ### Technical Improvements
-- **State Management**: Migrate to Provider or Riverpod for better scalability
-- **Testing**: Add comprehensive unit and integration tests
-- **CI/CD**: GitHub Actions for automated testing and deployment
-- **Error Monitoring**: Integrate Crashlytics or similar for production monitoring
-- **Performance Optimization**: Implement lazy loading and pagination for large lists
+
+* **State Management Upgrade**
+  Migrate to Provider or Riverpod for improved scalability and maintainability.
+
+* **Testing Strategy**
+  Introduce unit, widget, and integration tests to ensure application reliability.
+
+* **CI/CD Implementation**
+  Use GitHub Actions for automated testing and deployment pipelines.
+
+* **Error Monitoring**
+  Integrate Crashlytics or similar tools for production-level monitoring and issue tracking.
+
+* **Performance Optimization**
+  Implement lazy loading, pagination, and efficient data querying to support large datasets.
+
 
 ## Final UI Screenshots
 
@@ -102,6 +166,10 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
 
 #### User can also add note based on their mood:
 ![Mood Tracker](ui-screenshots/mood2.PNG)
+
+### Resources
+#### User can find resource:
+<img width="626" height="877" alt="image" src="https://github.com/user-attachments/assets/b43d433f-a47e-442d-a2af-603b3da3cbb1" />
 
 ### Journal
 #### User can write their private journal:
