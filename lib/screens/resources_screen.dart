@@ -25,21 +25,63 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   String _selectedFilter = 'All';
   // Text controller for search input
   final TextEditingController _searchController = TextEditingController();
-  // Daily image URL
-  String _dailyImageUrl =
-      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
   // Daily verse
   String _dailyVerse =
       '"Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest."';
   String _verseSource = '— Quran 13:28';
+
+  // List of Quranic resources
+  final List<Map<String, String>> _resources = [
+    {
+      'title': 'Finding Peace in Anxiety',
+      'category': 'Mental Health',
+      'quote': 'Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest.',
+      'source': '— Quran 13:28',
+    },
+    {
+      'title': 'Patience in Hardship',
+      'category': 'Mental Health',
+      'quote': 'And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient.',
+      'source': '— Quran 2:155',
+    },
+    {
+      'title': 'Hope and Gratitude',
+      'category': 'Mental Health',
+      'quote': 'If you are grateful, I will surely increase you [in favor].',
+      'source': '— Quran 14:7',
+    },
+    {
+      'title': 'Comfort in Loss',
+      'category': 'Grief',
+      'quote': 'And [that they may know] that it is Allah who receives the souls at the time of their death and [the souls] of those who do not die [but sleep] during their sleep. Then He keeps those for which He has decreed death and releases the others until a specified term.',
+      'source': '— Quran 39:42',
+    },
+    {
+      'title': 'Healing from Sorrow',
+      'category': 'Grief',
+      'quote': 'Indeed, to Allah belongs whoever is in the heavens and whoever is on the earth. And those who invoke with Allah - they do not [truly] invoke anyone but Him, and they are not invoking except Him.',
+      'source': '— Quran 29:17',
+    },
+    {
+      'title': 'Overcoming Fear',
+      'category': 'Anxiety',
+      'quote': 'And when I am ill, it is He who cures me. And who will cause me to die and then bring me to life.',
+      'source': '— Quran 26:80-81',
+    },
+    {
+      'title': 'Trust in Allah',
+      'category': 'Anxiety',
+      'quote': 'And whoever relies upon Allah - then He is sufficient for him.',
+      'source': '— Quran 65:3',
+    },
+  ];
 
   // Override initState to initialize
   @override
   void initState() {
     // Call super.initState()
     super.initState();
-    // Fetch daily image and verse
-    _fetchDailyImage();
+    // Fetch daily verse
     _fetchDailyVerse();
   }
 
@@ -50,15 +92,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     _searchController.dispose();
     // Call super.dispose()
     super.dispose();
-  }
-
-  // Fetch daily image from Unsplash
-  Future<void> _fetchDailyImage() async {
-    // For now, use a static Islamic image
-    setState(() {
-      _dailyImageUrl =
-          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
-    });
   }
 
   // Fetch daily verse from Quran API
@@ -230,7 +263,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                   ),
                   // Spacing
                   const SizedBox(height: 24),
-                  // Media Section header
+                  // Inspiring Media section
                   const Text(
                     'Inspiring Media',
                     style: TextStyle(
@@ -241,30 +274,63 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                   ),
                   // Spacing
                   const SizedBox(height: 16),
-                  // Spacing
-                  const SizedBox(height: 24),
-                  // Daily Image section
-                  const Text(
-                    'Islamic Wallpaper of the Day',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  // Spacing
-                  const SizedBox(height: 16),
-                  // Daily image
-                  Container(
-                    height: 200,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      image: DecorationImage(
-                        image: NetworkImage(_dailyImageUrl),
-                        fit: BoxFit.cover,
+                  // Grid of Islamic images
+                  GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      // Image 1: Abraj Al Bait Clock Tower in Mecca
+                      Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                'https://images.pexels.com/photos/35299528/pexels-photo-35299528.jpeg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
                       ),
-                    ),
+                      // Image 2: Kaaba at Mecca with pilgrims
+                      Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                'https://images.pexels.com/photos/35000011/pexels-photo-35000011.jpeg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      // Image 3: Open Quran book
+                      Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                'https://images.pexels.com/photos/6099938/pexels-photo-6099938.jpeg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      // Image 4: Person in hijab holding paper
+                      Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          image: const DecorationImage(
+                            image: NetworkImage(
+                                'https://images.pexels.com/photos/7249251/pexels-photo-7249251.jpeg'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   // Spacing
                   const SizedBox(height: 24),
@@ -331,34 +397,22 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                   ),
                   // Spacing
                   const SizedBox(height: 16),
-                  // First resource card
-                  _buildResourceCard(
-                    title: 'Finding Peace in Anxiety',
-                    category: 'Mental Health',
-                    quote:
-                        'Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest.',
-                    source: '— Quran 13:28',
-                  ),
-                  // Spacing
-                  const SizedBox(height: 16),
-                  // Second resource card
-                  _buildResourceCard(
-                    title: 'Patience in Hardship',
-                    category: 'Mental Health',
-                    quote:
-                        'And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient.',
-                    source: '— Quran 2:155',
-                  ),
-                  // Spacing
-                  const SizedBox(height: 16),
-                  // Third resource card
-                  _buildResourceCard(
-                    title: 'Hope and Gratitude',
-                    category: 'Mental Health',
-                    quote:
-                        'If you are grateful, I will surely increase you [in favor].',
-                    source: '— Quran 14:7',
-                  ),
+                  // Filtered resource cards
+                  ..._resources
+                      .where((resource) =>
+                          _selectedFilter == 'All' ||
+                          resource['category'] == _selectedFilter)
+                      .map((resource) => Column(
+                            children: [
+                              _buildResourceCard(
+                                title: resource['title']!,
+                                category: resource['category']!,
+                                quote: resource['quote']!,
+                                source: resource['source']!,
+                              ),
+                              const SizedBox(height: 16),
+                            ],
+                          ))
                 ],
               ),
             ),

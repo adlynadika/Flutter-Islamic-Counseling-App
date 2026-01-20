@@ -381,7 +381,6 @@ class _JournalScreenState extends State<JournalScreen> {
                   });
 
                   // Try saving to Firestore (via REST service)
-                  final messenger = ScaffoldMessenger.of(context);
                   try {
                     final user = FirebaseAuth.instance.currentUser;
                     final ok = await FirestoreService()
@@ -395,6 +394,7 @@ class _JournalScreenState extends State<JournalScreen> {
                       'uid': user?.uid,
                     });
                     if (!mounted) return;
+                    final messenger = ScaffoldMessenger.of(context);
                     if (ok) {
                       messenger.showSnackBar(
                         const SnackBar(
@@ -413,6 +413,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     }
                   } catch (e) {
                     if (!mounted) return;
+                    final messenger = ScaffoldMessenger.of(context);
                     messenger.showSnackBar(
                       const SnackBar(
                         content: Text('Saved locally, could not save remotely'),

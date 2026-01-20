@@ -45,7 +45,7 @@ class AIService {
   Future<String> getQuranicVerseRecommendation(String mood, int intensity,
       {String? additionalContext}) async {
     final prompt = '''
-Based on the mood "${mood}" with intensity level ${intensity}/10${additionalContext != null ? ', and additional context: $additionalContext' : ''}, recommend a suitable Quranic verse that would provide comfort and guidance.
+Based on the mood "$mood" with intensity level $intensity/10${additionalContext != null ? ', and additional context: $additionalContext' : ''}, recommend a suitable Quranic verse that would provide comfort and guidance.
 
 Please respond with:
 1. The Quranic verse (include Surah name and verse number)

@@ -531,6 +531,7 @@ class _MoodScreenState extends State<MoodScreen> {
                         return ChoiceChip(
                           label: Text(t),
                           selected: isSel,
+                          selectedColor: Colors.pinkAccent,
                           onSelected: (_) {
                             setState(() {
                               _selectedTrigger = t;
@@ -556,6 +557,7 @@ class _MoodScreenState extends State<MoodScreen> {
                         return ChoiceChip(
                           label: Text(l),
                           selected: isSel,
+                          selectedColor: Colors.pinkAccent,
                           onSelected: (_) {
                             setState(() {
                               _selectedLocation = l;
@@ -594,6 +596,9 @@ class _MoodScreenState extends State<MoodScreen> {
                                 _selectedLocation = null;
                               });
                             },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.pinkAccent,
+                            ),
                             child: const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 14),
                                 child: Text('Back')),
@@ -606,7 +611,8 @@ class _MoodScreenState extends State<MoodScreen> {
                           child: ElevatedButton(
                             onPressed: _saveMoodEntry,
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF2E7D32)),
+                                backgroundColor: const Color(0xFF2E7D32),
+                                foregroundColor: Colors.white),
                             child: const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 14),
                                 child: Text('Save')),
