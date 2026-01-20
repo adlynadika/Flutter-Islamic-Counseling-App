@@ -38,10 +38,6 @@ class _AIChatScreenState extends State<AIChatScreen> {
   // Boolean to indicate if a message is being sent (for loading state)
   bool _isLoading = false;
 
-  // ⚠️ Store securely (e.g. env/secure storage), don’t hardcode in production
-  static const String _apiKey =
-      "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";
-
   @override
   @override
   void initState() {
