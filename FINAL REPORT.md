@@ -94,7 +94,7 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
 
 ### AI Chat
 #### User can have a sharing session with our AI counselor:
-![AI Chat](ui-screenshots/aichat1.PNG)
+![AI Chat](ui-screenshots/aichatbot.PNG)
 
 ### Mood Tracker
 #### User can select their mood:
