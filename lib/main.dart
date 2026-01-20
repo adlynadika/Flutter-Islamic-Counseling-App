@@ -9,16 +9,12 @@ import 'screens/journal_screen.dart';
 import 'screens/auth_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  try {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
-  } catch (e, st) {
-    debugPrint('Firebase initialization error: $e\n$st');
-  }
-  runApp(const Qalby2HeartApp());
+Future<void> main() async { WidgetsFlutterBinding.ensureInitialized();
+  try { await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  } catch (e, st) { debugPrint('Firebase initialization error: $e\n$st');
+  } runApp(const Qalby2HeartApp());
 }
 
 class AuthGate extends StatelessWidget {
@@ -87,12 +83,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    HomeScreen(),
+  final List<Widget> _screens = [
+    const HomeScreen(),
     AIChatScreen(),
-    MoodScreen(),
-    ResourcesScreen(),
-    JournalScreen(),
+    const MoodScreen(),
+    const ResourcesScreen(),
+    const JournalScreen(),
   ];
 
   void _switchTab(int index){
