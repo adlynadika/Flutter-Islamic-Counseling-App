@@ -86,7 +86,7 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
 
 ### Login Screen
 #### User need to sign in to a valid email address to use the app:
-![Login Screen](ui-screenshots/signin.PNG)
+![Login Screen](ui-screenshots/login.PNG)
 
 ### Home Screen
 #### This is Qalby2Heart home screen:
