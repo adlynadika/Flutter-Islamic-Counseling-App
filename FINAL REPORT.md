@@ -82,6 +82,34 @@ Qalby2Heart is a Flutter-based Islamic mental wellness app designed to provide f
 - **Error Monitoring**: Integrate Crashlytics or similar for production monitoring
 - **Performance Optimization**: Implement lazy loading and pagination for large lists
 
+## Final UI Screenshots
+
+### Login Screen
+#### User need to sign in to a valid email address to use the app:
+![Login Screen](ui-screenshots/signin.PNG)
+
+### Home Screen
+#### This is Qalby2Heart home screen:
+![Login Screen](ui-screenshots/home.PNG)
+
+### AI Chat
+#### User can have a sharing session with our AI counselor:
+![AI Chat](ui-screenshots/aichatbot.PNG)
+
+### Mood Tracker
+#### User can select their mood:
+![Mood Tracker](ui-screenshots/mood.PNG)
+
+#### User can also add note based on their mood:
+![Mood Tracker](ui-screenshots/mood2.PNG)
+
+### Journal
+#### User can write their private journal:
+![Journal](ui-screenshots/journal.PNG)
+#### User can see their journal history:
+![Journal](ui-screenshots/journal2.PNG)
+
+
 ---
 
 **Project Status**: Core functionality complete with recent AI integration updates deployed to GitHub  
