@@ -43,7 +43,11 @@ class _MoodScreenState extends State<MoodScreen> {
     {'name': 'Grateful', 'icon': Icons.favorite, 'color': Colors.green},
     {'name': 'Peaceful', 'icon': Icons.cloud, 'color': Colors.blue},
     {'name': 'Hopeful', 'icon': Icons.wb_sunny, 'color': Colors.orange},
-    {'name': 'Calm', 'icon': Icons.nightlight_round, 'color': Colors.purple},
+    {
+      'name': 'Calm',
+      'icon': Icons.nightlight_round,
+      'color': Colors.pinkAccent
+    },
     {'name': 'Anxious', 'icon': Icons.warning, 'color': Colors.orange},
     {'name': 'Sad', 'icon': Icons.sentiment_dissatisfied, 'color': Colors.grey},
     {'name': 'Angry', 'icon': Icons.flash_on, 'color': Colors.red},

@@ -219,8 +219,8 @@ class HomeScreen extends StatelessWidget {
                       // Journal card
                       _buildQuickAccessCard(
                         icon: Icons.edit,
-                        iconColor: Colors.purple,
-                        borderColor: Colors.purple[100]!,
+                        iconColor: Colors.pinkAccent,
+                        borderColor: Colors.pink[100]!,
                         title: 'Private Journal',
                         description: 'Express your thoughts',
                         onTap: () {

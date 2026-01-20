@@ -2,8 +2,10 @@
 import 'package:flutter/material.dart';
 // Import Firebase Auth for user authentication
 import 'package:firebase_auth/firebase_auth.dart';
-// Import VideoPlayer for playing videos
-import 'package:video_player/video_player.dart';
+// Import http for API calls
+import 'package:http/http.dart' as http;
+// Import convert for JSON
+import 'dart:convert';
 // Import Firestore service for database operations
 import '../services/firestore_service.dart';
 
@@ -23,41 +25,60 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   String _selectedFilter = 'All';
   // Text controller for search input
   final TextEditingController _searchController = TextEditingController();
-  // Video player controllers for the two videos
-  late VideoPlayerController _videoController1;
-  late VideoPlayerController _videoController2;
+  // Daily image URL
+  String _dailyImageUrl =
+      'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+  // Daily verse
+  String _dailyVerse =
+      '"Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest."';
+  String _verseSource = '— Quran 13:28';
 
-  // Override initState to initialize video controllers
+  // Override initState to initialize
   @override
   void initState() {
     // Call super.initState()
     super.initState();
-    // Initialize first video controller
-    _videoController1 = VideoPlayerController.networkUrl(
-        Uri.parse('https://player.vimeo.com/video/76979871'))
-      ..initialize().then((_) {
-        // Update state when initialized
-        setState(() {});
-      });
-    // Initialize second video controller
-    _videoController2 = VideoPlayerController.networkUrl(
-        Uri.parse('https://player.vimeo.com/video/140664734'))
-      ..initialize().then((_) {
-        // Update state when initialized
-        setState(() {});
-      });
+    // Fetch daily image and verse
+    _fetchDailyImage();
+    _fetchDailyVerse();
   }
 
   // Override dispose to clean up resources
   @override
   void dispose() {
-    // Dispose video controllers
-    _videoController1.dispose();
-    _videoController2.dispose();
     // Dispose search controller
     _searchController.dispose();
     // Call super.dispose()
     super.dispose();
+  }
+
+  // Fetch daily image from Unsplash
+  Future<void> _fetchDailyImage() async {
+    // For now, use a static Islamic image
+    setState(() {
+      _dailyImageUrl =
+          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80';
+    });
+  }
+
+  // Fetch daily verse from Quran API
+  Future<void> _fetchDailyVerse() async {
+    try {
+      final response =
+          await http.get(Uri.parse('https://api.alquran.cloud/v1/ayah/random'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final text = data['data']['text'];
+        final surah = data['data']['surah']['englishName'];
+        final number = data['data']['numberInSurah'];
+        setState(() {
+          _dailyVerse = '"$text"';
+          _verseSource = '— $surah $number';
+        });
+      }
+    } catch (e) {
+      // Keep default
+    }
   }
 
   // Override build to return the widget tree for the screen
@@ -220,44 +241,11 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                   ),
                   // Spacing
                   const SizedBox(height: 16),
-                  // Images section
-                  Row(
-                    children: [
-                      // First image
-                      Expanded(
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1578662996442-48f60103fc96?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                          height: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      // Spacing
-                      const SizedBox(width: 16),
-                      // Second image
-                      Expanded(
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1544006659-f0b21884ce1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                          height: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      // Spacing
-                      const SizedBox(width: 16),
-                      // Third image
-                      Expanded(
-                        child: Image.network(
-                          'https://images.unsplash.com/photo-1585036156171-384164a8c675?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-                          height: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
-                  ),
                   // Spacing
                   const SizedBox(height: 24),
-                  // Videos section header
+                  // Daily Image section
                   const Text(
-                    'Quranic Recitations & Reflections',
+                    'Islamic Wallpaper of the Day',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -266,49 +254,69 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                   ),
                   // Spacing
                   const SizedBox(height: 16),
-                  // First video player or loading
-                  _videoController1.value.isInitialized
-                      ? AspectRatio(
-                          aspectRatio: _videoController1.value.aspectRatio,
-                          child: VideoPlayer(_videoController1),
-                        )
-                      : const CircularProgressIndicator(),
-                  // Spacing
-                  const SizedBox(height: 16),
-                  // Play/Pause button for first video
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _videoController1.value.isPlaying
-                            ? _videoController1.pause()
-                            : _videoController1.play();
-                      });
-                    },
-                    child: Text(
-                        _videoController1.value.isPlaying ? 'Pause' : 'Play'),
+                  // Daily image
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      image: DecorationImage(
+                        image: NetworkImage(_dailyImageUrl),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                   // Spacing
                   const SizedBox(height: 24),
-                  // Second video player or loading
-                  _videoController2.value.isInitialized
-                      ? AspectRatio(
-                          aspectRatio: _videoController2.value.aspectRatio,
-                          child: VideoPlayer(_videoController2),
-                        )
-                      : const CircularProgressIndicator(),
+                  // Quranic Verse of the Day section
+                  const Text(
+                    'Quranic Verse of the Day',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
                   // Spacing
                   const SizedBox(height: 16),
-                  // Play/Pause button for second video
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _videoController2.value.isPlaying
-                            ? _videoController2.pause()
-                            : _videoController2.play();
-                      });
-                    },
-                    child: Text(
-                        _videoController2.value.isPlaying ? 'Pause' : 'Play'),
+                  // Verse image or text
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[200]!),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withAlpha((0.1 * 255).round()),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          _dailyVerse,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _verseSource,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF2E7D32),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   // Spacing
                   const SizedBox(height: 24),

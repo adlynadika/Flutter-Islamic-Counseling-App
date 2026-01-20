@@ -93,7 +93,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     // Lock icon
                     Icon(
                       Icons.lock,
-                      color: Colors.purple[700],
+                      color: Colors.pink[700],
                       size: 24,
                     ),
                     // Spacing
@@ -118,10 +118,10 @@ class _JournalScreenState extends State<JournalScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            _isWriteMode ? Colors.purple : Colors.white,
+                            _isWriteMode ? Colors.pinkAccent : Colors.white,
                         foregroundColor:
-                            _isWriteMode ? Colors.white : Colors.purple,
-                        side: const BorderSide(color: Colors.purple),
+                            _isWriteMode ? Colors.white : Colors.pinkAccent,
+                        side: const BorderSide(color: Colors.pinkAccent),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -143,10 +143,10 @@ class _JournalScreenState extends State<JournalScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            !_isWriteMode ? Colors.purple : Colors.white,
+                            !_isWriteMode ? Colors.pinkAccent : Colors.white,
                         foregroundColor:
-                            !_isWriteMode ? Colors.white : Colors.purple,
-                        side: const BorderSide(color: Colors.purple),
+                            !_isWriteMode ? Colors.white : Colors.pinkAccent,
+                        side: const BorderSide(color: Colors.pinkAccent),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -177,7 +177,7 @@ class _JournalScreenState extends State<JournalScreen> {
                       'Your entries are private and confidential',
                       style: TextStyle(
                         fontSize: 12,
-                        color: Colors.purple[700],
+                        color: Colors.pink[700],
                       ),
                     ),
                   ],
@@ -423,7 +423,7 @@ class _JournalScreenState extends State<JournalScreen> {
                 }
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
+                backgroundColor: Colors.pinkAccent,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -620,7 +620,7 @@ class _JournalScreenState extends State<JournalScreen> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.purple,
+                backgroundColor: Colors.pinkAccent,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 32,
                   vertical: 16,
@@ -916,15 +916,15 @@ Keep the response concise and compassionate.
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: Colors.purple[50],
+          color: Colors.pink[50],
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.purple[200]!),
+          border: Border.all(color: Colors.pink[200]!),
         ),
         child: Text(
           prompt,
           style: TextStyle(
             fontSize: 12,
-            color: Colors.purple[700],
+            color: Colors.pink[700],
           ),
         ),
       ),
