@@ -1,220 +1,80 @@
-// Import Flutter's material design widgets
-import 'package:flutter/material.dart';
-// Import Firebase Auth for user authentication
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// Import http for API calls
-import 'package:http/http.dart' as http;
-// Import convert for JSON
-import 'dart:convert';
-// Import Firestore service for database operations
-import '../services/firestore_service.dart';
+import 'package:flutter/material.dart';
 
-// ResourcesScreen is a StatefulWidget that displays Islamic resources like videos, images, and Quranic verses
+import 'admin_upload_screen.dart';
+import 'resource_detail_screen.dart';
+
 class ResourcesScreen extends StatefulWidget {
-  // Constructor for ResourcesScreen with optional key
   const ResourcesScreen({super.key});
 
-  // Override createState to return the state class
   @override
   State<ResourcesScreen> createState() => _ResourcesScreenState();
 }
 
-// _ResourcesScreenState is the state class for ResourcesScreen, managing resources display and interactions
 class _ResourcesScreenState extends State<ResourcesScreen> {
-  // Selected filter for resources
   String _selectedFilter = 'All';
-  // Text controller for search input
   final TextEditingController _searchController = TextEditingController();
-  // Daily verse
-  String _dailyVerse =
-      '"Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest."';
-  String _verseSource = '— Quran 13:28';
+  bool _isAdmin = false;
+  bool _mounted = true;
 
-  // List of Quranic resources
-  final List<Map<String, String>> _resources = [
-    {
-      'title': 'Finding Peace in Anxiety',
-      'category': 'Mental Health',
-      'quote':
-          'Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest.',
-      'source': '— Quran 13:28',
-    },
-    {
-      'title': 'Patience in Hardship',
-      'category': 'Mental Health',
-      'quote':
-          'And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient.',
-      'source': '— Quran 2:155',
-    },
-    {
-      'title': 'Hope and Gratitude',
-      'category': 'Mental Health',
-      'quote': 'If you are grateful, I will surely increase you [in favor].',
-      'source': '— Quran 14:7',
-    },
-    {
-      'title': 'Comfort in Loss',
-      'category': 'Grief',
-      'quote':
-          'And [that they may know] that it is Allah who receives the souls at the time of their death and [the souls] of those who do not die [but sleep] during their sleep. Then He keeps those for which He has decreed death and releases the others until a specified term.',
-      'source': '— Quran 39:42',
-    },
-    {
-      'title': 'Healing from Sorrow',
-      'category': 'Grief',
-      'quote':
-          'Indeed, to Allah belongs whoever is in the heavens and whoever is on the earth. And those who invoke with Allah - they do not [truly] invoke anyone but Him, and they are not invoking except Him.',
-      'source': '— Quran 29:17',
-    },
-    {
-      'title': 'Overcoming Fear',
-      'category': 'Anxiety',
-      'quote':
-          'And when I am ill, it is He who cures me. And who will cause me to die and then bring me to life.',
-      'source': '— Quran 26:80-81',
-    },
-    {
-      'title': 'Trust in Allah',
-      'category': 'Anxiety',
-      'quote': 'And whoever relies upon Allah - then He is sufficient for him.',
-      'source': '— Quran 65:3',
-    },
-    // Additional Mental Health verses
-    {
-      'title': 'Finding Strength in Faith',
-      'category': 'Mental Health',
-      'quote':
-          'And whoever fears Allah - He will make for him a way out. And will provide for him from where he does not expect.',
-      'source': '— Quran 65:2-3',
-    },
-    {
-      'title': 'Patience Rewarded',
-      'category': 'Mental Health',
-      'quote': 'Indeed, Allah is with the patient.',
-      'source': '— Quran 2:153',
-    },
-    {
-      'title': 'Hope in Mercy',
-      'category': 'Mental Health',
-      'quote': 'And do not lose hope in the mercy of Allah.',
-      'source': '— Quran 12:87',
-    },
-    {
-      'title': 'Forgiveness and Healing',
-      'category': 'Mental Health',
-      'quote':
-          'And whoever does a wrong or wrongs himself but then seeks forgiveness of Allah will find Allah Forgiving and Merciful.',
-      'source': '— Quran 4:110',
-    },
-    // Additional Grief verses
-    {
-      'title': 'Acceptance of Loss',
-      'category': 'Grief',
-      'quote':
-          'To Allah belongs what is in the heavens and what is on the earth. And Allah is ever, over all things, competent.',
-      'source': '— Quran 4:126',
-    },
-    {
-      'title': 'Patience in Bereavement',
-      'category': 'Grief',
-      'quote':
-          'Indeed, the patient will be given their reward without account.',
-      'source': '— Quran 39:10',
-    },
-    {
-      'title': 'Seeking Help Through Prayer',
-      'category': 'Grief',
-      'quote': 'And seek help through patience and prayer.',
-      'source': '— Quran 2:45',
-    },
-    {
-      'title': 'Comfort in Trials',
-      'category': 'Grief',
-      'quote':
-          'And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient, who, when disaster strikes them, say, "Indeed we belong to Allah, and indeed to Him we will return."',
-      'source': '— Quran 2:155-156',
-    },
-    // Additional Anxiety verses
-    {
-      'title': 'Allah is Near',
-      'category': 'Anxiety',
-      'quote':
-          'And when My servants ask you concerning Me - indeed I am near. I respond to the invocation of the supplicant when he calls upon Me.',
-      'source': '— Quran 2:186',
-    },
-    {
-      'title': 'Best of Planners',
-      'category': 'Anxiety',
-      'quote': 'And Allah is the best of planners.',
-      'source': '— Quran 8:30',
-    },
-    {
-      'title': 'No Burden Beyond Capacity',
-      'category': 'Anxiety',
-      'quote': 'Indeed, Allah does not burden a soul beyond that it can bear.',
-      'source': '— Quran 2:286',
-    },
-    {
-      'title': 'Relief from Worry',
-      'category': 'Anxiety',
-      'quote':
-          'For indeed, with hardship [will be] ease. Indeed, with hardship [will be] ease.',
-      'source': '— Quran 94:5-6',
-    },
-  ];
-
-  // Override initState to initialize
   @override
   void initState() {
-    // Call super.initState()
     super.initState();
-    // Fetch daily verse
-    _fetchDailyVerse();
+    _checkAdminRole();
   }
 
-  // Override dispose to clean up resources
   @override
   void dispose() {
-    // Dispose search controller
+    _mounted = false;
     _searchController.dispose();
-    // Call super.dispose()
     super.dispose();
   }
 
-  // Fetch daily verse from Quran API
-  Future<void> _fetchDailyVerse() async {
-    try {
-      final response =
-          await http.get(Uri.parse('https://api.alquran.cloud/v1/ayah/random'));
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final text = data['data']['text'];
-        final surah = data['data']['surah']['englishName'];
-        final number = data['data']['numberInSurah'];
-        setState(() {
-          _dailyVerse = '"$text"';
-          _verseSource = '— $surah $number';
-        });
-      }
-    } catch (e) {
-      // Keep default
-    }
+  Future<void> _checkAdminRole() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('user_profiles')
+        .doc(user.uid)
+        .get();
+
+    if (!_mounted) return;
+
+    setState(() {
+      _isAdmin = doc.exists && (doc.data()?['isAdmin'] == true);
+    });
   }
 
-  // Override build to return the widget tree for the screen
+  Stream<List<ResourceItem>> _resourcesStream() {
+    return FirebaseFirestore.instance
+        .collection('resources')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => ResourceItem.fromFirestore(doc.id, doc.data()))
+          .toList();
+    });
+  }
+
+  int _crossAxisCount(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 600) return 2;
+    if (width < 900) return 3;
+    return 4;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Return a Scaffold with body as a column
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7F6),
       body: Column(
         children: [
-          // Header section
           Container(
-            // Full width
             width: double.infinity,
-            // Padding for the header
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            // Decoration with green background and rounded bottom corners
             decoration: const BoxDecoration(
               color: Color(0xFF2E7D32),
               borderRadius: BorderRadius.only(
@@ -222,284 +82,61 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                 bottomRight: Radius.circular(20),
               ),
             ),
-            // Child is a column with app title and subtitle
-            child: const Column(
+            child: Column(
               children: [
-                // App title text
-                Text(
-                  'Qalby2Heart',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                // Spacing
-                SizedBox(height: 4),
-                // Subtitle text
-                Text(
-                  'Your Faith-Based Mental Wellness Companion',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(width: 40),
+                    const Column(
+                      children: [
+                        Text(
+                          'Qalby2Heart',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Your Faith-Based Mental Wellness Companion',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_isAdmin)
+                      IconButton(
+                        icon: const Icon(Icons.add, color: Colors.white),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AdminUploadScreen(),
+                            ),
+                          );
+                        },
+                      )
+                    else
+                      const SizedBox(width: 40),
+                  ],
                 ),
               ],
             ),
           ),
-          // Main Content section
           Expanded(
-            // SingleChildScrollView for scrollable content
             child: SingleChildScrollView(
-              // Padding around the content
               padding: const EdgeInsets.all(16),
-              // Child is a column with various sections
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title text
-                  const Text(
-                    'Islamic Resources',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  // Spacing
-                  const SizedBox(height: 8),
-                  // Subtitle text
-                  const Text(
-                    'Guidance from Quran and Hadith for mental wellness.',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  // Spacing
-                  const SizedBox(height: 24),
-                  // Search Bar section
-                  TextField(
-                    // Attach controller
-                    controller: _searchController,
-                    // Decoration for the text field
-                    decoration: InputDecoration(
-                      hintText: 'Search resources...',
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                    ),
-                    // On submit, record search
-                    onSubmitted: (value) async {
-                      // Get scaffold messenger
-                      final messenger = ScaffoldMessenger.of(context);
-                      // Try to record search
-                      try {
-                        // Get current user
-                        final user = FirebaseAuth.instance.currentUser;
-                        // Add search document
-                        final ok = await FirestoreService()
-                            .addDocument('resource_searches', {
-                          'query': value,
-                          'timestamp': DateTime.now().toUtc(),
-                          'uid': user?.uid,
-                        });
-                        // Return if not mounted
-                        if (!mounted) return;
-                        // Show snackbar if successful
-                        if (ok) {
-                          messenger.showSnackBar(const SnackBar(
-                              content: Text('Search recorded'),
-                              backgroundColor: Colors.green));
-                        }
-                      } catch (e) {
-                        // Ignore errors
-                      }
-                    },
-                  ),
-                  // Spacing
+                  _buildSearch(),
                   const SizedBox(height: 16),
-                  // Filter Buttons section
-                  SingleChildScrollView(
-                    // Horizontal scroll
-                    scrollDirection: Axis.horizontal,
-                    // Child is a row of filter buttons
-                    child: Row(
-                      children: [
-                        // All filter button
-                        _buildFilterButton('All', Icons.menu_book),
-                        // Spacing
-                        const SizedBox(width: 12),
-                        // Mental Health filter button
-                        _buildFilterButton('Mental Health', Icons.psychology),
-                        // Spacing
-                        const SizedBox(width: 12),
-                        // Grief filter button
-                        _buildFilterButton('Grief', Icons.favorite),
-                        // Spacing
-                        const SizedBox(width: 12),
-                        // Anxiety filter button
-                        _buildFilterButton('Anxiety', Icons.cloud),
-                      ],
-                    ),
-                  ),
-                  // Spacing
-                  const SizedBox(height: 24),
-                  // Inspiring Media section
-                  const Text(
-                    'Inspiring Media',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  // Spacing
+                  _buildFilters(),
                   const SizedBox(height: 16),
-                  // Grid of Islamic images
-                  GridView.count(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      // Image 1: Abraj Al Bait Clock Tower in Mecca
-                      Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                                'https://images.pexels.com/photos/35299528/pexels-photo-35299528.jpeg'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      // Image 2: Kaaba at Mecca with pilgrims
-                      Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                                'https://images.pexels.com/photos/35000011/pexels-photo-35000011.jpeg'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      // Image 3: Open Quran book
-                      Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                                'https://images.pexels.com/photos/6099938/pexels-photo-6099938.jpeg'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      // Image 4: Person in hijab holding paper
-                      Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          image: const DecorationImage(
-                            image: NetworkImage(
-                                'https://images.pexels.com/photos/7249251/pexels-photo-7249251.jpeg'),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  // Spacing
-                  const SizedBox(height: 24),
-                  // Quranic Verse of the Day section
-                  const Text(
-                    'Quranic Verse of the Day',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  // Spacing
-                  const SizedBox(height: 16),
-                  // Verse image or text
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey[200]!),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withAlpha((0.1 * 255).round()),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          _dailyVerse,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontStyle: FontStyle.italic,
-                            color: Colors.black87,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _verseSource,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFF2E7D32),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Spacing
-                  const SizedBox(height: 24),
-                  // Resource Cards section header
-                  const Text(
-                    'Quranic Verses for Wellness',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
-                  ),
-                  // Spacing
-                  const SizedBox(height: 16),
-                  // Filtered resource cards
-                  ..._resources
-                      .where((resource) =>
-                          _selectedFilter == 'All' ||
-                          resource['category'] == _selectedFilter)
-                      .map((resource) => Column(
-                            children: [
-                              _buildResourceCard(
-                                title: resource['title']!,
-                                category: resource['category']!,
-                                quote: resource['quote']!,
-                                source: resource['source']!,
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                          ))
+                  _buildResources(),
                 ],
               ),
             ),
@@ -509,188 +146,308 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     );
   }
 
-  // Widget to build a filter button
-  Widget _buildFilterButton(String label, IconData icon) {
-    // Check if this filter is selected
-    final isSelected = _selectedFilter == label;
-    // Return ElevatedButton with icon
-    return ElevatedButton.icon(
-      // On pressed, update filter and record selection
-      onPressed: () async {
-        // Update selected filter
-        setState(() {
-          _selectedFilter = label;
-        });
-        // Get scaffold messenger
-        final messenger = ScaffoldMessenger.of(context);
-        // Try to record filter selection
-        try {
-          // Get current user
-          final user = FirebaseAuth.instance.currentUser;
-          // Add filter document
-          final ok = await FirestoreService().addDocument('resource_filters', {
-            'filter': label,
-            'timestamp': DateTime.now().toUtc(),
-            'uid': user?.uid,
-          });
-          // Return if not mounted
-          if (!mounted) return;
-          // Show snackbar if successful
-          if (ok) {
-            messenger.showSnackBar(const SnackBar(
-                content: Text('Filter selected'),
-                backgroundColor: Colors.green));
-          }
-        } catch (e) {
-          // Ignore errors
-        }
-      },
-      // Icon for the button
-      icon: Icon(icon, size: 18),
-      // Label text
-      label: Text(label),
-      // Button style based on selection
-      style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? const Color(0xFF2E7D32) : Colors.white,
-        foregroundColor: isSelected ? Colors.white : Colors.black87,
-        side: BorderSide(
-          color: isSelected ? const Color(0xFF2E7D32) : Colors.grey[300]!,
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+  Widget _buildSearch() {
+    return TextField(
+      controller: _searchController,
+      onChanged: (_) => setState(() {}),
+      decoration: InputDecoration(
+        hintText: 'Search resources...',
+        prefixIcon: const Icon(Icons.search),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide.none,
         ),
       ),
     );
   }
 
-  Widget _buildResourceCard({
-    required String title,
-    required String category,
-    required String quote,
-    required String source,
-  }) {
-    return InkWell(
-      onTap: () async {
-        try {
-          final user = FirebaseAuth.instance.currentUser;
-          await FirestoreService().addDocument('resource_views', {
-            'title': title,
-            'category': category,
-            'timestamp': DateTime.now().toUtc(),
-            'uid': user?.uid,
-          });
-        } catch (e) {
-          // ignore
-        }
-        if (!mounted) return;
-        showDialog(
-            context: context,
-            builder: (context) {
-              return AlertDialog(
-                title: Text(title),
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('"$quote"'),
-                    const SizedBox(height: 8),
-                    Text(source,
-                        style: const TextStyle(fontWeight: FontWeight.w500)),
-                  ],
-                ),
-                actions: [
-                  TextButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Close')),
-                ],
-              );
-            });
-      },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[200]!),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withAlpha((0.1 * 255).round()),
-              spreadRadius: 1,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
+  Widget _buildFilters() {
+    return SizedBox(
+      height: 40,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        children: [
+          _filterChip('All', Icons.menu_book),
+          _filterChip('Mental Health', Icons.psychology),
+          _filterChip('Grief', Icons.favorite),
+          _filterChip('Anxiety', Icons.warning_amber_rounded),
+        ],
+      ),
+    );
+  }
+
+  Widget _filterChip(String label, IconData icon) {
+    final selected = _selectedFilter == label;
+
+    return Padding(
+      padding: const EdgeInsets.only(right: 10),
+      child: ChoiceChip(
+        selected: selected,
+        selectedColor: const Color(0xFF2E7D32),
+        labelStyle: TextStyle(color: selected ? Colors.white : Colors.black),
+        label: Row(
+          children: [
+            Icon(icon, size: 16),
+            const SizedBox(width: 6),
+            Text(label),
           ],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.menu_book,
-                  color: Color(0xFF2E7D32),
-                  size: 24,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        ),
+        onSelected: (_) => setState(() => _selectedFilter = label),
+      ),
+    );
+  }
+
+  Widget _buildResources() {
+    return StreamBuilder<List<ResourceItem>>(
+      stream: _resourcesStream(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(40),
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        final data = snapshot.data ?? [];
+        final query = _searchController.text.toLowerCase();
+
+        final items = data.where((r) {
+          final matchesFilter =
+              _selectedFilter == 'All' || r.category == _selectedFilter;
+          final matchesSearch = r.title.toLowerCase().contains(query) ||
+              r.quote.toLowerCase().contains(query) ||
+              r.source.toLowerCase().contains(query);
+          return matchesFilter && matchesSearch;
+        }).toList();
+
+        if (items.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(40),
+            child: Text('No resources found'),
+          );
+        }
+
+        return GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: _crossAxisCount(context),
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 0.78,
+          ),
+          itemCount: items.length,
+          itemBuilder: (context, index) => _resourceCard(context, items[index]),
+        );
+      },
+    );
+  }
+
+  Widget _resourceCard(BuildContext context, ResourceItem r) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ResourceDetailScreen(
+              resource: r,
+              isAdmin: _isAdmin,
+            ),
+          ),
+        );
+      },
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 2,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (_isAdmin)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: PopupMenuButton(
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'edit',
+                        child: Text('Edit'),
                       ),
-                      const SizedBox(height: 4),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E7D32)
-                              .withAlpha((0.1 * 255).round()),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          category,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF2E7D32),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                      const PopupMenuItem(
+                        value: 'delete',
+                        child: Text('Delete'),
                       ),
                     ],
+                    onSelected: (value) async {
+                      if (value == 'edit') {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => AdminUploadScreen(resource: r),
+                          ),
+                        );
+                      } else if (value == 'delete') {
+                        final confirm = await showDialog<bool>(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text('Delete Resource?'),
+                            content: const Text(
+                                'Are you sure you want to delete this resource?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, false),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, true),
+                                child: const Text('Delete'),
+                              ),
+                            ],
+                          ),
+                        );
+
+                        if (confirm == true) {
+                          await FirebaseFirestore.instance
+                              .collection('resources')
+                              .doc(r.id)
+                              .delete();
+                        }
+                      }
+                    },
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '"$quote"',
-              style: const TextStyle(
-                fontSize: 15,
-                color: Colors.black87,
-                fontStyle: FontStyle.italic,
+
+              // 🔥 MEDIA (IMAGE / VIDEO THUMBNAIL)
+              if (r.mediaUrl.isNotEmpty)
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(
+                    aspectRatio: 16 / 9,
+                    child: Stack(
+                      children: [
+                        Image.network(
+                          r.mediaType == 'video'
+                              ? (_getYoutubeId(r.mediaUrl).isNotEmpty
+                                  ? 'https://img.youtube.com/vi/${_getYoutubeId(r.mediaUrl)}/0.jpg'
+                                  : 'https://via.placeholder.com/480x270.png?text=No+Thumbnail')
+                              : r.mediaUrl,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        ),
+                        if (r.mediaType == 'video')
+                          const Center(
+                            child: Icon(
+                              Icons.play_circle_fill,
+                              size: 60,
+                              color: Colors.white70,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+
+              const SizedBox(height: 8),
+
+              // 🔥 TITLE
+              Text(
+                r.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              source,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF2E7D32),
-                fontWeight: FontWeight.w500,
+
+              const SizedBox(height: 6),
+
+              // 🔥 QUOTE
+              Text(
+                r.quote,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: Colors.black87,
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 6),
+
+              // 🔥 SOURCE (GREEN + BOLD ITALIC)
+              Text(
+                r.source.isNotEmpty ? 'Source: ${r.source}' : 'Source: Unknown',
+                style: const TextStyle(
+                  fontSize: 10,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF2E7D32), // GREEN
+                ),
+              ),
+
+              const SizedBox(height: 6),
+
+              // 🔥 CATEGORY CHIP
+              Chip(
+                label: Text(r.category, style: const TextStyle(fontSize: 10)),
+                backgroundColor: const Color(0xFFE8F5E9),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  String _getYoutubeId(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return '';
+
+    if (uri.host.contains('youtu.be')) {
+      return uri.pathSegments.isNotEmpty ? uri.pathSegments.first : '';
+    }
+
+    if (uri.host.contains('youtube.com')) {
+      return uri.queryParameters['v'] ?? '';
+    }
+
+    final match = RegExp(r"v=([a-zA-Z0-9_-]{11})").firstMatch(url);
+    return match?.group(1) ?? '';
+  }
+}
+
+class ResourceItem {
+  final String id;
+  final String title;
+  final String category;
+  final String quote;
+  final String source;
+  final String mediaUrl;
+  final String mediaType;
+
+  ResourceItem({
+    required this.id,
+    required this.title,
+    required this.category,
+    required this.quote,
+    required this.source,
+    required this.mediaUrl,
+    required this.mediaType,
+  });
+
+  factory ResourceItem.fromFirestore(String id, Map<String, dynamic> data) {
+    return ResourceItem(
+      id: id,
+      title: (data['title'] ?? '').toString(),
+      category: (data['category'] ?? '').toString(),
+      quote: (data['quote'] ?? '').toString(),
+      source: (data['source'] ?? '').toString(),
+      mediaUrl: (data['mediaUrl'] ?? '').toString(),
+      mediaType: (data['mediaType'] ?? 'image').toString(),
     );
   }
 }
