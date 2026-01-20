@@ -95,7 +95,7 @@ class _AuthScreenState extends State<AuthScreen> {
     try {
       setState(() => _isSigningIn = true);
       final userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -129,7 +129,7 @@ class _AuthScreenState extends State<AuthScreen> {
         googleProvider.addScope('email');
         googleProvider.addScope('profile');
         userCredential =
-            await FirebaseAuth.instance.signInWithPopup(googleProvider);
+        await FirebaseAuth.instance.signInWithPopup(googleProvider);
       } else {
         // For mobile, use GoogleSignIn
         final googleUser = await GoogleSignIn.instance.authenticate();
@@ -158,7 +158,7 @@ class _AuthScreenState extends State<AuthScreen> {
         );
 
         userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
+        await FirebaseAuth.instance.signInWithCredential(credential);
       }
 
       // Save user profile to Firestore (for new users or updates)
@@ -200,82 +200,140 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Sign in')),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Form(
-              key: _formKey,
-              autovalidateMode: _autoValidate
-                  ? AutovalidateMode.always
-                  : AutovalidateMode.disabled,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    validator: _emailValidator,
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    validator: _passwordValidator,
-                    textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) async {
-                      if (_isRegisterMode) {
-                        await _signUpWithEmail();
-                      } else {
-                        await _signInWithEmail();
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _isSigningIn
-                        ? null
-                        : () async {
-                            setState(() => _autoValidate = true);
-                            if (!(_formKey.currentState?.validate() ?? false)) {
-                              return;
-                            }
-                            if (_isRegisterMode) {
-                              await _signUpWithEmail();
-                            } else {
-                              await _signInWithEmail();
-                            }
-                          },
-                    child: Text(_isRegisterMode ? 'Create account' : 'Sign in'),
-                  ),
-                  TextButton(
-                    onPressed: () =>
-                        setState(() => _isRegisterMode = !_isRegisterMode),
-                    child: Text(_isRegisterMode
-                        ? 'Have an account? Sign in'
-                        : 'Create an account'),
-                  ),
-                  const SizedBox(height: 8),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  SignInButton(
-                    Buttons.Google,
-                    onPressed: _isSigningIn ? null : _signInWithGoogle,
-                  ),
-                  const SizedBox(height: 8),
-                  if (_isSigningIn)
-                    const Center(child: CircularProgressIndicator()),
-                ],
+      body: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24.0),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 400),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Logo + Title
+                    Image.asset('assets/qalbylogo.png'),
+
+                    const SizedBox(height: 20),
+                    Text(
+                      _isRegisterMode ? "Create Account" : "أَهْلًا وَسَهْلًا!",
+                      textAlign: TextAlign.center,
+                      style: Theme
+                          .of(context)
+                          .textTheme
+                          .headlineMedium
+                          ?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.brown,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Form
+                    Form(
+                      key: _formKey,
+                      autovalidateMode: _autoValidate
+                          ? AutovalidateMode.always
+                          : AutovalidateMode.disabled,
+                      child: Column(
+                        children: [
+                          TextFormField(
+                            controller: _emailController,
+                            keyboardType: TextInputType.emailAddress,
+                            decoration: InputDecoration(
+                              labelText: 'Email',
+                              prefixIcon: const Icon(Icons.email),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            validator: _emailValidator,
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              labelText: 'Password',
+                              prefixIcon: const Icon(Icons.lock),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            validator: _passwordValidator,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Action Button
+                    ElevatedButton(
+                      onPressed: _isSigningIn
+                          ? null
+                          : () async {
+                        setState(() => _autoValidate = true);
+                        if (!(_formKey.currentState?.validate() ?? false)) {
+                          return;
+                        }
+                        if (_isRegisterMode) {
+                          await _signUpWithEmail();
+                        } else {
+                          await _signInWithEmail();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFFF3E5F5),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(
+                        _isRegisterMode ? 'Create Account' : 'Sign In',
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () =>
+                          setState(() => _isRegisterMode = !_isRegisterMode),
+                      child: Text(_isRegisterMode
+                          ? 'Have an account? Sign in'
+                          : 'Create an account'),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Divider
+                    Row(children: const [
+                      Expanded(child: Divider()),
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8),
+                        child: Text("OR"),
+                      ),
+                      Expanded(child: Divider()),
+                    ]),
+                    const SizedBox(height: 12),
+
+                    // Google Sign-In
+                    SignInButton(
+                      Buttons.Google,
+                      onPressed: _isSigningIn ? null : _signInWithGoogle,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
+
+          // Loading overlay
+          if (_isSigningIn)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black45,
+                child: const Center(child: CircularProgressIndicator()),
+              ),
+            ),
+        ],
       ),
     );
   }
