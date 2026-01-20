@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
 import '../services/firestore_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -14,8 +12,10 @@ class AuthScreen extends StatefulWidget {
 
 class _AuthScreenState extends State<AuthScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _isSigningIn = false;
   bool _isRegisterMode = false;
   bool _autoValidate = false;
@@ -40,144 +40,93 @@ class _AuthScreenState extends State<AuthScreen> {
           return 'The email address is not valid.';
         case 'weak-password':
           return 'The password is too weak (min 6 characters).';
-        case 'account-exists-with-different-credential':
-          return 'An account exists with a different sign-in method.';
         case 'network-request-failed':
           return 'Network error. Check your connection and try again.';
         default:
           return e.message ?? 'Authentication error: ${e.code}';
       }
-    } else if (e is FirebaseException) {
-      return e.message ?? 'Firebase error: ${e.code}';
     }
     return e.toString();
   }
 
   Future<void> _showError(Object e) async {
     if (!mounted) return;
+
     final msg = _getErrorMessage(e);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        backgroundColor: Colors.red[700],
+      ),
+    );
   }
 
   Future<void> _signInWithEmail() async {
     FocusScope.of(context).unfocus();
-    setState(() {
-      _autoValidate = true;
-    });
+    setState(() => _autoValidate = true);
 
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     try {
       setState(() => _isSigningIn = true);
+
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
-    } on FirebaseAuthException catch (e) {
-      await _showError(e);
     } catch (e) {
       await _showError(e);
     } finally {
-      if (mounted) {
-        setState(() => _isSigningIn = false);
-      }
+      if (mounted) setState(() => _isSigningIn = false);
     }
   }
 
   Future<void> _signUpWithEmail() async {
     FocusScope.of(context).unfocus();
-    setState(() {
-      _autoValidate = true;
-    });
+    setState(() => _autoValidate = true);
 
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     try {
       setState(() => _isSigningIn = true);
+
       final userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
 
-      // Save user profile to Firestore
-      await FirestoreService()
-          .setDocument('user_profiles', userCredential.user!.uid, {
-        'email': _emailController.text.trim(),
-        'uid': userCredential.user?.uid,
-        'createdAt': DateTime.now().toUtc(),
-        'authProvider': 'email',
-      });
-    } on FirebaseAuthException catch (e) {
-      await _showError(e);
+      await FirestoreService().setDocument(
+        'user_profiles',
+        userCredential.user!.uid,
+        {
+          'email': _emailController.text.trim(),
+          'uid': userCredential.user?.uid,
+          'createdAt': DateTime.now().toUtc(),
+          'authProvider': 'email',
+        },
+      );
     } catch (e) {
       await _showError(e);
     } finally {
-      if (mounted) {
-        setState(() => _isSigningIn = false);
-      }
+      if (mounted) setState(() => _isSigningIn = false);
     }
   }
 
-  Future<void> _signInWithGoogle() async {
-    setState(() => _isSigningIn = true);
+  Future<void> _sendPasswordResetEmail() async {
+    FocusScope.of(context).unfocus();
+
     try {
-      UserCredential userCredential;
-      if (kIsWeb) {
-        // For web, use Firebase Auth's signInWithPopup
-        final GoogleAuthProvider googleProvider = GoogleAuthProvider();
-        googleProvider.addScope('email');
-        googleProvider.addScope('profile');
-        userCredential =
-            await FirebaseAuth.instance.signInWithPopup(googleProvider);
-      } else {
-        // For mobile, use GoogleSignIn
-        final googleUser = await GoogleSignIn.instance.authenticate();
+      await FirebaseAuth.instance.sendPasswordResetEmail(
+        email: _emailController.text.trim(),
+      );
 
-        // GoogleSignInAuthentication only contains an ID token. Request an
-        // authorization token (access token) using the authorization client.
-        final idToken = googleUser.authentication.idToken;
-        GoogleSignInClientAuthorization? authz;
-        try {
-          // Try lightweight token retrieval first (no UI). If null, fall back to
-          // an explicit scope authorization request which may show UI.
-          authz = await googleUser.authorizationClient.authorizationForScopes(
-            const ['openid', 'email', 'profile'],
-          );
-          authz ??= await googleUser.authorizationClient.authorizeScopes(
-            const ['openid', 'email', 'profile'],
-          );
-        } catch (_) {
-          // If authorization fails, we still attempt sign-in with the ID token
-          // which may be sufficient on some platforms.
-        }
-
-        final credential = GoogleAuthProvider.credential(
-          accessToken: authz?.accessToken,
-          idToken: idToken,
-        );
-
-        userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
-      }
-
-      // Save user profile to Firestore (for new users or updates)
-      await FirestoreService()
-          .setDocument('user_profiles', userCredential.user!.uid, {
-        'email': userCredential.user?.email,
-        'displayName': userCredential.user?.displayName,
-        'uid': userCredential.user?.uid,
-        'createdAt': DateTime.now().toUtc(),
-        'authProvider': 'google',
-      });
-    } on FirebaseAuthException catch (e) {
-      await _showError(e);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Password reset email sent.')),
+      );
     } catch (e) {
       await _showError(e);
-    } finally {
-      if (mounted) {
-        setState(() => _isSigningIn = false);
-      }
     }
   }
 
@@ -199,79 +148,163 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sign in')),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Form(
-              key: _formKey,
-              autovalidateMode: _autoValidate
-                  ? AutovalidateMode.always
-                  : AutovalidateMode.disabled,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                    validator: _emailValidator,
-                    textInputAction: TextInputAction.next,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    validator: _passwordValidator,
-                    textInputAction: TextInputAction.done,
-                    onFieldSubmitted: (_) async {
-                      if (_isRegisterMode) {
-                        await _signUpWithEmail();
-                      } else {
-                        await _signInWithEmail();
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _isSigningIn
-                        ? null
-                        : () async {
-                            setState(() => _autoValidate = true);
-                            if (!(_formKey.currentState?.validate() ?? false)) {
-                              return;
-                            }
+    final ThemeData localTheme = Theme.of(context).copyWith(
+      primaryColor: const Color(0xFF2E7D32),
+      scaffoldBackgroundColor: const Color(0xFFF6FFF7),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Color(0xFF2E7D32),
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFF2E7D32),
+          foregroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF2E7D32)),
+        ),
+      ),
+    );
+
+    return Theme(
+      data: localTheme,
+      child: Scaffold(
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 450),
+              child: Card(
+                elevation: 6,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(22.0),
+                  child: Form(
+                    key: _formKey,
+                    autovalidateMode: _autoValidate
+                        ? AutovalidateMode.always
+                        : AutovalidateMode.disabled,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 12),
+
+                        // ✨ TITLE
+                        Center(
+                          child: Text(
+                            'Qalby2Heart Login',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green[800],
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        TextFormField(
+                          controller: _emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _emailValidator,
+                          textInputAction: TextInputAction.next,
+                        ),
+                        const SizedBox(height: 12),
+
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Password',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: _passwordValidator,
+                          textInputAction: TextInputAction.done,
+                          onFieldSubmitted: (_) async {
                             if (_isRegisterMode) {
                               await _signUpWithEmail();
                             } else {
                               await _signInWithEmail();
                             }
                           },
-                    child: Text(_isRegisterMode ? 'Create account' : 'Sign in'),
+                        ),
+                        const SizedBox(height: 14),
+
+                        ElevatedButton(
+                          onPressed: _isSigningIn
+                              ? null
+                              : () async {
+                                  setState(() => _autoValidate = true);
+
+                                  if (!(_formKey.currentState?.validate() ??
+                                      false)) return;
+
+                                  if (_isRegisterMode) {
+                                    await _signUpWithEmail();
+                                  } else {
+                                    await _signInWithEmail();
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: Text(
+                            _isRegisterMode ? 'Create account' : 'Sign in',
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        TextButton(
+                          onPressed: () => setState(
+                              () => _isRegisterMode = !_isRegisterMode),
+                          child: Text(
+                            _isRegisterMode
+                                ? 'Have an account? Sign in'
+                                : 'Create an account',
+                          ),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        TextButton(
+                          onPressed: _sendPasswordResetEmail,
+                          child: const Text('Forgot Password?'),
+                        ),
+
+                        const SizedBox(height: 14),
+
+                        if (_isSigningIn)
+                          const Center(child: CircularProgressIndicator()),
+                      ],
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () =>
-                        setState(() => _isRegisterMode = !_isRegisterMode),
-                    child: Text(_isRegisterMode
-                        ? 'Have an account? Sign in'
-                        : 'Create an account'),
-                  ),
-                  const SizedBox(height: 8),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  SignInButton(
-                    Buttons.Google,
-                    onPressed: _isSigningIn ? null : _signInWithGoogle,
-                  ),
-                  const SizedBox(height: 8),
-                  if (_isSigningIn)
-                    const Center(child: CircularProgressIndicator()),
-                ],
+                ),
               ),
             ),
           ),
