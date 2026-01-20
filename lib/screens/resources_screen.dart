@@ -35,13 +35,15 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     {
       'title': 'Finding Peace in Anxiety',
       'category': 'Mental Health',
-      'quote': 'Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest.',
+      'quote':
+          'Those who believe and whose hearts find rest in the remembrance of Allah. Verily, in the remembrance of Allah do hearts find rest.',
       'source': '— Quran 13:28',
     },
     {
       'title': 'Patience in Hardship',
       'category': 'Mental Health',
-      'quote': 'And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient.',
+      'quote':
+          'And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient.',
       'source': '— Quran 2:155',
     },
     {
@@ -53,19 +55,22 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     {
       'title': 'Comfort in Loss',
       'category': 'Grief',
-      'quote': 'And [that they may know] that it is Allah who receives the souls at the time of their death and [the souls] of those who do not die [but sleep] during their sleep. Then He keeps those for which He has decreed death and releases the others until a specified term.',
+      'quote':
+          'And [that they may know] that it is Allah who receives the souls at the time of their death and [the souls] of those who do not die [but sleep] during their sleep. Then He keeps those for which He has decreed death and releases the others until a specified term.',
       'source': '— Quran 39:42',
     },
     {
       'title': 'Healing from Sorrow',
       'category': 'Grief',
-      'quote': 'Indeed, to Allah belongs whoever is in the heavens and whoever is on the earth. And those who invoke with Allah - they do not [truly] invoke anyone but Him, and they are not invoking except Him.',
+      'quote':
+          'Indeed, to Allah belongs whoever is in the heavens and whoever is on the earth. And those who invoke with Allah - they do not [truly] invoke anyone but Him, and they are not invoking except Him.',
       'source': '— Quran 29:17',
     },
     {
       'title': 'Overcoming Fear',
       'category': 'Anxiety',
-      'quote': 'And when I am ill, it is He who cures me. And who will cause me to die and then bring me to life.',
+      'quote':
+          'And when I am ill, it is He who cures me. And who will cause me to die and then bring me to life.',
       'source': '— Quran 26:80-81',
     },
     {
@@ -73,6 +78,88 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
       'category': 'Anxiety',
       'quote': 'And whoever relies upon Allah - then He is sufficient for him.',
       'source': '— Quran 65:3',
+    },
+    // Additional Mental Health verses
+    {
+      'title': 'Finding Strength in Faith',
+      'category': 'Mental Health',
+      'quote':
+          'And whoever fears Allah - He will make for him a way out. And will provide for him from where he does not expect.',
+      'source': '— Quran 65:2-3',
+    },
+    {
+      'title': 'Patience Rewarded',
+      'category': 'Mental Health',
+      'quote': 'Indeed, Allah is with the patient.',
+      'source': '— Quran 2:153',
+    },
+    {
+      'title': 'Hope in Mercy',
+      'category': 'Mental Health',
+      'quote': 'And do not lose hope in the mercy of Allah.',
+      'source': '— Quran 12:87',
+    },
+    {
+      'title': 'Forgiveness and Healing',
+      'category': 'Mental Health',
+      'quote':
+          'And whoever does a wrong or wrongs himself but then seeks forgiveness of Allah will find Allah Forgiving and Merciful.',
+      'source': '— Quran 4:110',
+    },
+    // Additional Grief verses
+    {
+      'title': 'Acceptance of Loss',
+      'category': 'Grief',
+      'quote':
+          'To Allah belongs what is in the heavens and what is on the earth. And Allah is ever, over all things, competent.',
+      'source': '— Quran 4:126',
+    },
+    {
+      'title': 'Patience in Bereavement',
+      'category': 'Grief',
+      'quote':
+          'Indeed, the patient will be given their reward without account.',
+      'source': '— Quran 39:10',
+    },
+    {
+      'title': 'Seeking Help Through Prayer',
+      'category': 'Grief',
+      'quote': 'And seek help through patience and prayer.',
+      'source': '— Quran 2:45',
+    },
+    {
+      'title': 'Comfort in Trials',
+      'category': 'Grief',
+      'quote':
+          'And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient, who, when disaster strikes them, say, "Indeed we belong to Allah, and indeed to Him we will return."',
+      'source': '— Quran 2:155-156',
+    },
+    // Additional Anxiety verses
+    {
+      'title': 'Allah is Near',
+      'category': 'Anxiety',
+      'quote':
+          'And when My servants ask you concerning Me - indeed I am near. I respond to the invocation of the supplicant when he calls upon Me.',
+      'source': '— Quran 2:186',
+    },
+    {
+      'title': 'Best of Planners',
+      'category': 'Anxiety',
+      'quote': 'And Allah is the best of planners.',
+      'source': '— Quran 8:30',
+    },
+    {
+      'title': 'No Burden Beyond Capacity',
+      'category': 'Anxiety',
+      'quote': 'Indeed, Allah does not burden a soul beyond that it can bear.',
+      'source': '— Quran 2:286',
+    },
+    {
+      'title': 'Relief from Worry',
+      'category': 'Anxiety',
+      'quote':
+          'For indeed, with hardship [will be] ease. Indeed, with hardship [will be] ease.',
+      'source': '— Quran 94:5-6',
     },
   ];
 
