@@ -6,7 +6,7 @@ Built with **Flutter** and **Firebase**, designed for accessibility and modern U
 ---
 
 ## 🤖 AI Chat Demo
-![AI Chat Demo](AI_Chat_Demo.gif)
+![AI Chat Demo](/demo/AI%20Chat%20Demo.gif)
 
 ---
 
@@ -23,12 +23,28 @@ Built with **Flutter** and **Firebase**, designed for accessibility and modern U
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
 ![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![OpenRouter](https://img.shields.io/badge/OpenRouter-000000?style=for-the-badge&logo=openai&logoColor=white)
+
 
 ---
 
-## 🎥 Video Walkthrough
-[![Watch the video](images/video_thumbnail.png)](https://youtu.be/YOUR_VIDEO_ID)
-
----
-
-🔗 Original Repository: [Friend’s Repo](https://github.com/friend/repo-name)
+## ⚙️ Technical Details (AI Chat)
+- Integrated **OpenRouter API** for AI responses.  
+- Model used: **AllenAI: Molmo2 8B (free)**.  
+- API key stored securely in `.env` (excluded via `.gitignore`).  
+- Example request:
+  ```dart
+  final response = await http.post(
+    Uri.parse("https://openrouter.ai/api/v1/chat/completions"),
+    headers: {
+      "Authorization": "Bearer $apiKey",
+      "Content-Type": "application/json",
+    },
+    body: jsonEncode({
+      "model": "allenai/molmo2-8b",
+      "messages": [
+        {"role": "system", "content": "You are an Islamic counseling assistant."},
+        {"role": "user", "content": userMessage},
+      ],
+    }),
+  );
